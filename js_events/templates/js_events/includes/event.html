@@ -1,0 +1,46 @@
+{% load i18n apphooks_config_tags cms_tags sekizai_tags staticfiles thumbnail %}
+
+{% page_attribute "slug" as slug %}
+
+<article class="events-event{% if event.is_featured %} events-featured{% endif %}{% if not event.published %} unpublished{% endif %}{% if event.future %} future{% endif %}">
+
+  {% if event.featured_image_id and slug != "how-to" and slug != "guides" %}
+    <header class="image" style="background-image:url({% thumbnail event.featured_image 1190x500 crop subject_location=event.featured_image.subject_location %});">
+  {% else %}
+    <header>
+  {% endif %}
+
+    <p class="section-title" title="{{ slug }}">{{ slug }}</p>
+
+    <h1>{% render_model event "title" %}</h1>
+
+  </header>
+
+    {% render_placeholder event.content language placeholder_language %}
+
+    <div class="related-events cols-layout">
+      <h3>Related events</h3>
+      <ul class="row">
+        {% for event in related_events %}
+          <li class="col-md-4">
+
+            <a href="{{ event.get_absolute_url }}">
+
+              {% if event.featured_image %}
+                {% thumbnail event.featured_image "500x300" crop="center" as im %}
+                <img src="{{ im.url }}">
+              {% endif %}
+
+              <h4>{{ event.title }}</h4>
+
+              {% if event.lead_in %}
+                <p>{{ event.lead_in|striptags|safe }}</p>
+              {% endif %}
+
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+</article>

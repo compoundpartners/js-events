@@ -1,0 +1,6 @@
+{
+    "package-name": "js-events",
+    "installed-apps": [
+        "js_events"
+    ]
+}
