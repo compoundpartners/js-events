@@ -147,8 +147,8 @@ class Event(TranslatedAutoSlugifyMixin,
     # which in the end causes to add reversed releted-to entry as well:
     #
     # https://github.com/django/django/blob/1.8.4/django/db/models/fields/related.py#L977
-    related = SortedManyToManyField('self', verbose_name=_('related events'),
-                                    blank=True, symmetrical=False)
+    services = SortedManyToManyField('js_services.Service',
+        verbose_name=_('services'), blank=True)
 
     objects = RelatedManager()
 

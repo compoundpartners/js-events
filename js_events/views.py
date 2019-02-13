@@ -160,12 +160,6 @@ class EventDetail(AppConfigMixin, AppHookCheckMixin, PreviewModeMixin,
             self.queryset, self.object)
 
         event = context['event']
-        categories = event.categories.all()
-        ra_qs = Event.objects.all().filter(is_published=True).filter(
-            publishing_date__lte=datetime.now()).distinct()
-        ra_qs = ra_qs.filter(categories__in=categories)
-        ra_qs = ra_qs.exclude(id=event.id)
-        context['related_events'] = ra_qs[:3]
 
         related_types_first = event.app_config
         if related_types_first is not None:

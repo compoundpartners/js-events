@@ -16,7 +16,6 @@ from . import models
 
 from .constants import (
     EVENTS_SUMMARY_RICHTEXT,
-    EVENTS_HIDE_RELATED_EVENTS
 )
 
 from cms.admin.placeholderadmin import PlaceholderAdminMixin
@@ -82,36 +81,13 @@ class EventAdminForm(TranslatableModelForm):
             'meta_keywords',
             'meta_title',
             'slug',
-            'related',
+            'services',
             'title',
         ]
 
     def __init__(self, *args, **kwargs):
         super(EventAdminForm, self).__init__(*args, **kwargs)
 
-        qs = models.Event.objects
-        if self.instance.app_config_id:
-            qs = models.Event.objects.filter(
-                app_config=self.instance.app_config)
-        elif 'initial' in kwargs and 'app_config' in kwargs['initial']:
-            qs = models.Event.objects.filter(
-                app_config=kwargs['initial']['app_config'])
-
-        if self.instance.pk:
-            qs = qs.exclude(pk=self.instance.pk)
-
-        if 'related' in self.fields:
-            self.fields['related'].queryset = qs
-
-        # Don't allow app_configs to be added here. The correct way to add an
-        # apphook-config is to create an apphook on a cms Page.
-        self.fields['app_config'].widget.can_add_related = False
-        # Don't allow related articles to be added here.
-        # doesn't makes much sense to add articles from another article other
-        # than save and add another.
-        if ('related' in self.fields and
-                hasattr(self.fields['related'], 'widget')):
-            self.fields['related'].widget.can_add_related = False
         if not EVENTS_SUMMARY_RICHTEXT:
             self.fields['lead_in'].widget = widgets.Textarea()
             self.fields['location'].widget = widgets.Textarea()
@@ -130,23 +106,11 @@ class EventAdmin(
     list_filter = [
         'app_config',
         'categories',
+        'services',
     ]
     actions = (
         make_featured, make_not_featured,
         make_published, make_unpublished,
-    )
-
-
-    advanced_settings_fields = (
-        'categories',
-    )
-    if EVENTS_HIDE_RELATED_EVENTS == 0:
-        advanced_settings_fields += (
-            'related',
-        )
-
-    advanced_settings_fields += (
-        'app_config',
     )
 
     fieldsets = (
@@ -183,7 +147,11 @@ class EventAdmin(
         }),
         (_('Advanced Settings'), {
             'classes': ('collapse',),
-            'fields': advanced_settings_fields,
+            'fields': (
+                'categories',
+                'services',
+                'app_config',
+            )
         }),
     )
 
@@ -197,11 +165,6 @@ class EventAdmin(
     }
     app_config_selection_title = ''
     app_config_selection_desc = ''
-
-    def formfield_for_manytomany(self, db_field, request=None, **kwargs):
-        if db_field.name == 'related' and EVENTS_HIDE_RELATED_EVENTS == 0:
-            kwargs['widget'] = SortedFilteredSelectMultiple(attrs={'verbose_name': 'event', 'verbose_name_plural': 'related events'})
-        return super(EventAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
 
 
 admin.site.register(models.Event, EventAdmin)

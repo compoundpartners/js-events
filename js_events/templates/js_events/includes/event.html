@@ -18,29 +18,4 @@
 
     {% render_placeholder event.content language placeholder_language %}
 
-    <div class="related-events cols-layout">
-      <h3>Related events</h3>
-      <ul class="row">
-        {% for event in related_events %}
-          <li class="col-md-4">
-
-            <a href="{{ event.get_absolute_url }}">
-
-              {% if event.featured_image %}
-                {% thumbnail event.featured_image "500x300" crop="center" as im %}
-                <img src="{{ im.url }}">
-              {% endif %}
-
-              <h4>{{ event.title }}</h4>
-
-              {% if event.lead_in %}
-                <p>{{ event.lead_in|striptags|safe }}</p>
-              {% endif %}
-
-            </a>
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
-
 </article>
