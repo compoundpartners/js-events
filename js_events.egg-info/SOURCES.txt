@@ -8,10 +8,12 @@ js_events/apps.py
 js_events/cms_appconfig.py
 js_events/cms_apps.py
 js_events/cms_menus.py
+js_events/cms_plugins.py
 js_events/cms_toolbars.py
 js_events/cms_wizards.py
 js_events/constants.py
 js_events/feeds.py
+js_events/forms.py
 js_events/managers.py
 js_events/models.py
 js_events/search_indexes.py
@@ -24,6 +26,7 @@ js_events.egg-info/not-zip-safe
 js_events.egg-info/top_level.txt
 js_events/migrations/0001_initial.py
 js_events/migrations/0002_auto_20190213_0944.py
+js_events/migrations/0003_eventrelatedplugin.py
 js_events/migrations/__init__.py
 js_events/templates/js_events/base.html
 js_events/templates/js_events/event_detail.html
@@ -33,3 +36,7 @@ js_events/templates/js_events/includes/event.html
 js_events/templates/js_events/includes/pagination.html
 js_events/templates/js_events/includes/search_results.html
 js_events/templates/js_events/includes/sidebar.html
+js_events/templates/js_events/plugins/related_events__cols.html
+js_events/templates/js_events/plugins/related_events__events.html
+js_events/templates/js_events/plugins/related_events__hero.html
+js_events/templates/js_events/plugins/related_events__rows.html

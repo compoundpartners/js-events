@@ -9,7 +9,6 @@ import sortedm2m.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('js_services', '0004_auto_20190213_0944'),
         ('js_events', '0001_initial'),
     ]
 

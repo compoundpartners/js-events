@@ -38,7 +38,9 @@
     <ul class="row">
 
       {% for event in event_list %}
+        <li class="col-sm-12 col-md-6 {{ event.type_slug|lower }}">
           {% include "js_events/includes/event-item.html" %}
+        </li>
       {% empty %}
           {% trans "No items available" %}
       {% endfor %}

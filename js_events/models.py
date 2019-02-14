@@ -23,6 +23,7 @@ from django.utils.translation import override, ugettext
 from djangocms_text_ckeditor.fields import HTMLField
 from sortedm2m.fields import SortedManyToManyField
 from filer.fields.image import FilerImageField
+from djangocms_icon.fields import Icon
 from parler.models import TranslatableModel, TranslatedFields
 from aldryn_newsblog.utils import get_plugin_index_data, get_request, strip_tags
 
@@ -252,6 +253,63 @@ class Event(TranslatedAutoSlugifyMixin,
 
     def __str__(self):
         return self.safe_translation_getter('title', any_language=True)
+
+
+class PluginEditModeMixin(object):
+    def get_edit_mode(self, request):
+        """
+        Returns True only if an operator is logged-into the CMS and is in
+        edit mode.
+        """
+        return (
+            hasattr(request, 'toolbar') and request.toolbar and
+            request.toolbar.edit_mode)
+
+
+class AdjustableCacheModelMixin(models.Model):
+    # NOTE: This field shouldn't even be displayed in the plugin's change form
+    # if using django CMS < 3.3.0
+    cache_duration = models.PositiveSmallIntegerField(
+        default=0,  # not the most sensible, but consistent with older versions
+        blank=False,
+        help_text=_(
+            "The maximum duration (in seconds) that this plugin's content "
+            "should be cached.")
+    )
+
+    class Meta:
+        abstract = True
+
+
+@python_2_unicode_compatible
+class EventRelatedPlugin(PluginEditModeMixin, AdjustableCacheModelMixin,
+                            CMSPlugin):
+    # NOTE: This one does NOT subclass NewsBlogCMSPlugin. This is because this
+    # plugin can really only be placed on the article detail view in an apphook.
+    cmsplugin_ptr = models.OneToOneField(
+        CMSPlugin, related_name='+', parent_link=True)
+
+    title = models.CharField(max_length=255, blank=True, verbose_name=_('Title'))
+    icon = Icon(blank=False, default='fa-')
+    image = FilerImageField(null=True, blank=True, related_name="related_events_title_image")
+    number_of_items = models.PositiveSmallIntegerField(verbose_name=_('Number of events'))
+    layout = models.CharField(max_length=30, verbose_name=_('layout'))
+    time_period = models.CharField(max_length=30, verbose_name=_('Time Period'))
+    featured = models.BooleanField(blank=True, default=False)
+    exclude_current_item = models.BooleanField(blank=True, default=False, verbose_name=_('Exclude current event'))
+    related_types = SortedManyToManyField(EventsConfig, verbose_name=_('related sections'), blank=True, symmetrical=False)
+    related_categories = SortedManyToManyField(Category, verbose_name=_('related categories'), blank=True, symmetrical=False)
+    related_services = SortedManyToManyField('js_services.Service', verbose_name=_('related services'), blank=True, symmetrical=False)
+    related_hosts = SortedManyToManyField(Person, verbose_name=_('related hosts'), blank=True, symmetrical=False)
+
+    def copy_relations(self, oldinstance):
+        self.related_types = oldinstance.related_types.all()
+        self.related_categories = oldinstance.related_categories.all()
+        self.related_services = oldinstance.related_services.all()
+        self.related_hosts = oldinstance.related_hosts.all()
+
+    def __str__(self):
+        return ugettext('Related events')
 
 
 @receiver(post_save, dispatch_uid='event_update_search_data')
