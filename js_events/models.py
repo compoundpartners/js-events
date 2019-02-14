@@ -18,6 +18,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.timezone import now
+from datetime import datetime
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import override, ugettext
 from djangocms_text_ckeditor.fields import HTMLField
@@ -105,6 +106,8 @@ class Event(TranslatedAutoSlugifyMixin,
     end_time = models.TimeField(verbose_name=_('Sart time'), blank=True, null=True)
     registration_until = models.DateTimeField(_('Allow registration until'),
         blank=True, null=True)
+    registration_content = PlaceholderField('Hide After Happened',
+                               related_name='events_event_registration_content')
     registration_link = models.CharField(max_length=255,
         verbose_name=_('Registration link'),
         blank=True, default='',
@@ -116,8 +119,8 @@ class Event(TranslatedAutoSlugifyMixin,
         help_text=_('link to an external registration system'),
     )
 
-    content = PlaceholderField('newsblog_event_content',
-                               related_name='newsblog_event_content')
+    content = PlaceholderField('Event Content',
+                               related_name='events_event_content')
     app_config = AppHookConfigField(
         EventsConfig,
         verbose_name=_('Section'),
@@ -185,6 +188,10 @@ class Event(TranslatedAutoSlugifyMixin,
         future date/time.
         """
         return (self.is_published and self.publishing_date > now())
+
+    @property
+    def show_registration_content(self):
+        return (self.registration_until or datetime.combine(self.start_date, datetime.min.time())) > now()
 
     def get_absolute_url(self, language=None):
         """Returns the url for this Event in the selected permalink format."""

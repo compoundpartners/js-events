@@ -18,4 +18,8 @@
 
     {% render_placeholder event.content language placeholder_language %}
 
+    {% if event.show_registration_content %}
+        {% render_placeholder event.registration_content language placeholder_language %}
+    {% endif %}
+
 </article>
