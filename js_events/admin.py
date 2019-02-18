@@ -70,10 +70,8 @@ class EventAdminForm(TranslatableModelForm):
             'host',
             'host_2',
             'host_3',
-            'start_date',
-            'start_time',
-            'end_date',
-            'end_time',
+            'event_start',
+            'event_end',
             'registration_until',
             'registration_link',
             'external_link',
@@ -101,7 +99,7 @@ class EventAdmin(
     TranslatableAdmin
 ):
     form = EventAdminForm
-    list_display = ('title', 'app_config', 'slug', 'start_date', 'is_featured',
+    list_display = ('title', 'app_config', 'slug', 'event_start', 'is_featured',
                     'is_published')
     list_filter = [
         'app_config',
@@ -125,8 +123,8 @@ class EventAdmin(
                 'host',
                 'host_2',
                 'host_3',
-                ('start_date', 'start_time'),
-                ('end_date', 'end_time'),
+                'event_start',
+                'event_end',
                 'registration_until',
                 'registration_link',
                 'external_link',

@@ -28,6 +28,7 @@ class EventRelatedPluginForm(forms.ModelForm):
     time_period = forms.ChoiceField(TIME_PERIODS)
 
     related_types = forms.ModelMultipleChoiceField(
+        label='Related sections',
         queryset=EventsConfig.objects.all(),
         required=False,
         widget=FilteredSelectMultiple('Related sections', False)
@@ -47,3 +48,6 @@ class EventRelatedPluginForm(forms.ModelForm):
         required=False,
         widget=FilteredSelectMultiple('Related hosts', False)
     )
+
+    class Meta:
+        exclude = ['cache_duration']

@@ -18,7 +18,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.timezone import now
-from datetime import datetime
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import override, ugettext
 from djangocms_text_ckeditor.fields import HTMLField
@@ -90,6 +89,8 @@ class Event(TranslatedAutoSlugifyMixin,
         search_data=models.TextField(blank=True, editable=False)
     )
 
+    event_start = models.DateTimeField(_('Event start'), default=now)
+    event_end = models.DateTimeField(_('Event end'), null=True, blank=True)
     latitude = models.DecimalField(max_digits=8, decimal_places=5,
         verbose_name=_('Event latitude'), blank=True, null=True)
     longitude = models.DecimalField(max_digits=8, decimal_places=5,
@@ -100,10 +101,6 @@ class Event(TranslatedAutoSlugifyMixin,
         verbose_name=_('second host'))
     host_3 = models.ForeignKey(Person, related_name='host_3', null=True, blank=True,
         verbose_name=_('third host'))
-    start_date = models.DateField(verbose_name=_('Sart date'))
-    start_time = models.TimeField(verbose_name=_('Sart time'), blank=True, null=True)
-    end_date = models.DateField(verbose_name=_('End date'), blank=True, null=True)
-    end_time = models.TimeField(verbose_name=_('Sart time'), blank=True, null=True)
     registration_until = models.DateTimeField(_('Allow registration until'),
         blank=True, null=True)
     registration_content = PlaceholderField('Hide After Happened',
@@ -191,7 +188,23 @@ class Event(TranslatedAutoSlugifyMixin,
 
     @property
     def show_registration_content(self):
-        return (self.registration_until or datetime.combine(self.start_date, datetime.min.time())) > now()
+        return (self.registration_until or self.event_start) > now()
+
+    @property
+    def start_date(self):
+        return self.event_start.date()
+
+    @property
+    def start_time(self):
+        return self.event_start.time()
+
+    @property
+    def end_date(self):
+        return self.event_end.date()
+
+    @property
+    def end_time(self):
+        return self.event_end.time()
 
     def get_absolute_url(self, language=None):
         """Returns the url for this Event in the selected permalink format."""

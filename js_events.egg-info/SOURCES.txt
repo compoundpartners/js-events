@@ -27,6 +27,8 @@ js_events.egg-info/top_level.txt
 js_events/migrations/0001_initial.py
 js_events/migrations/0002_auto_20190213_0944.py
 js_events/migrations/0003_eventrelatedplugin.py
+js_events/migrations/0004_auto_20190213_2050.py
+js_events/migrations/0005_auto_20190218_0714.py
 js_events/migrations/__init__.py
 js_events/templates/js_events/base.html
 js_events/templates/js_events/event_detail.html

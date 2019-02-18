@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('aldryn_categories', '0007_categorytranslation_landing_page'),
-        ('js_services', '0004_auto_20190213_0944'),
+        ('js_services', '0001_initial'),
         migrations.swappable_dependency(settings.FILER_IMAGE_MODEL),
         ('cms', '0020_old_tree_cleanup'),
         ('aldryn_people', '0026_person_services'),
