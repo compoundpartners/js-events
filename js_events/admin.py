@@ -92,14 +92,13 @@ class EventAdminForm(TranslatableModelForm):
 
 
 class EventAdmin(
-    AllTranslationsMixin,
     PlaceholderAdminMixin,
     FrontendEditableAdminMixin,
     ModelAppHookConfig,
     TranslatableAdmin
 ):
     form = EventAdminForm
-    list_display = ('title', 'app_config', 'slug', 'event_start', 'is_featured',
+    list_display = ('title_view', 'app_config', 'event_start', 'is_featured',
                     'is_published')
     list_filter = [
         'app_config',
@@ -110,6 +109,10 @@ class EventAdmin(
         make_featured, make_not_featured,
         make_published, make_unpublished,
     )
+    def title_view(self, obj):
+         return obj.title
+    title_view.short_description  = 'title'
+    title_view.admin_order_field = 'translations__title'
 
     fieldsets = (
         (None, {
@@ -169,7 +172,6 @@ admin.site.register(models.Event, EventAdmin)
 
 
 class EventsConfigAdmin(
-    AllTranslationsMixin,
     PlaceholderAdminMixin,
     BaseAppHookConfig,
     TranslatableAdmin
