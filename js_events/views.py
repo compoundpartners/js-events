@@ -206,9 +206,15 @@ class EventDetail(AppConfigMixin, AppHookCheckMixin, PreviewModeMixin,
 
 
 class EventListBase(AppConfigMixin, AppHookCheckMixin, TemplatePrefixMixin,
-                      PreviewModeMixin, ViewUrlMixin, ListView):
+                    EditModeMixin, PreviewModeMixin, ViewUrlMixin, ListView):
     model = Event
     show_header = False
+
+    def get_queryset(self):
+        qs = super(ArticleListBase, self).get_queryset()
+        if not self.edit_mode:
+            qs = qs.published()
+        return qs
 
     def get_paginate_by(self, queryset):
         if self.paginate_by is not None:
