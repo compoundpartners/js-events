@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-import datetime
 
 from distutils.version import LooseVersion
 from django.utils.translation import ugettext_lazy as _
+from django.utils.timezone import now
 
 from cms import __version__ as cms_version
 from cms.plugin_base import CMSPluginBase
@@ -92,9 +92,9 @@ class EventRelatedPlugin(AdjustableCacheMixin, CMSPluginBase):
         if instance.featured:
             qs = qs.filter(is_featured=True)
         if instance.time_period == 'future':
-            qs = qs.filter(start_date__gt=datetime.date.today())
+            qs = qs.filter(event_start__gt=now())
         elif instance.time_period == 'past':
-            qs = qs.filter(start_date__lte=datetime.date.today())
+            qs = qs.filter(event_start__lte=now())
 
         context['related_events'] = qs[:int(instance.number_of_items)]
         return context

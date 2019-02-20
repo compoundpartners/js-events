@@ -211,7 +211,7 @@ class EventListBase(AppConfigMixin, AppHookCheckMixin, TemplatePrefixMixin,
     show_header = False
 
     def get_queryset(self):
-        qs = super(ArticleListBase, self).get_queryset()
+        qs = super(EventListBase, self).get_queryset()
         if not self.edit_mode:
             qs = qs.published()
         return qs
