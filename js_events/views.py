@@ -206,7 +206,7 @@ class EventDetail(AppConfigMixin, AppHookCheckMixin, PreviewModeMixin,
 
 
 class EventListBase(AppConfigMixin, AppHookCheckMixin, TemplatePrefixMixin,
-                    EditModeMixin, PreviewModeMixin, ViewUrlMixin, ListView):
+                    PreviewModeMixin, ViewUrlMixin, ListView):
     model = Event
     show_header = False
 
