@@ -26,7 +26,7 @@ def make_published(modeladmin, request, queryset):
 
 
 make_published.short_description = _(
-    "Mark selected articles as published")
+    "Mark selected events as published")
 
 
 def make_unpublished(modeladmin, request, queryset):
@@ -34,7 +34,7 @@ def make_unpublished(modeladmin, request, queryset):
 
 
 make_unpublished.short_description = _(
-    "Mark selected articles as not published")
+    "Mark selected events as not published")
 
 
 def make_featured(modeladmin, request, queryset):
@@ -42,7 +42,7 @@ def make_featured(modeladmin, request, queryset):
 
 
 make_featured.short_description = _(
-    "Mark selected articles as featured")
+    "Mark selected events as featured")
 
 
 def make_not_featured(modeladmin, request, queryset):
@@ -50,7 +50,7 @@ def make_not_featured(modeladmin, request, queryset):
 
 
 make_not_featured.short_description = _(
-    "Mark selected articles as not featured")
+    "Mark selected events as not featured")
 
 
 class EventAdminForm(TranslatableModelForm):
@@ -120,7 +120,6 @@ class EventAdmin(
                 'title',
                 'lead_in',
                 'featured_image',
-
                 'location',
                 ('latitude', 'longitude'),
                 'host',
@@ -160,6 +159,7 @@ class EventAdmin(
 
     filter_horizontal = [
         'categories',
+        'services',
     ]
     app_config_values = {
         'default_published': 'is_published'
