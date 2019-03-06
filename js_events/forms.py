@@ -13,6 +13,7 @@ LAYOUT_CHOICES = [
     ('rows', 'Rows'),
     ('hero', 'Hero'),
     ('events', 'Events'),
+    ('filter', 'Filter'),
 ]
 
 TIME_PERIODS = [

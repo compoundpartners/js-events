@@ -9,7 +9,7 @@ from django.utils.timezone import now
 from cms import __version__ as cms_version
 from cms.plugin_base import CMSPluginBase
 from cms.plugin_pool import plugin_pool
-from . import models, forms
+from . import models, forms, filters
 
 
 CMS_GTE_330 = LooseVersion(cms_version) >= LooseVersion('3.3.0')
@@ -95,6 +95,11 @@ class EventRelatedPlugin(AdjustableCacheMixin, CMSPluginBase):
             qs = qs.filter(event_start__gt=now())
         elif instance.time_period == 'past':
             qs = qs.filter(event_start__lte=now())
+
+        if instance.layout == 'filter':
+            f = filters.EventFilters(request.GET, queryset=qs)
+            context['filter'] = f
+            qs = f.qs
 
         context['related_events'] = qs[:int(instance.number_of_items)]
         return context
