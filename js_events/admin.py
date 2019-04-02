@@ -60,6 +60,7 @@ class EventAdminForm(TranslatableModelForm):
         fields = [
             'app_config',
             'categories',
+            'companies',
             'featured_image',
             'is_featured',
             'is_published',
@@ -104,6 +105,7 @@ class EventAdmin(
         'app_config',
         'categories',
         'services',
+        'companies',
     ]
     actions = (
         make_featured, make_not_featured,
@@ -150,6 +152,7 @@ class EventAdmin(
             'fields': (
                 'categories',
                 'services',
+                'companies',
                 'app_config',
             )
         }),
@@ -159,7 +162,6 @@ class EventAdmin(
 
     filter_horizontal = [
         'categories',
-        'services',
     ]
     app_config_values = {
         'default_published': 'is_published'
@@ -167,6 +169,12 @@ class EventAdmin(
     app_config_selection_title = ''
     app_config_selection_desc = ''
 
+    def formfield_for_manytomany(self, db_field, request=None, **kwargs):
+        if db_field.name == 'services':
+            kwargs['widget'] = SortedFilteredSelectMultiple(attrs={'verbose_name': 'service', 'verbose_name_plural': 'services'})
+        if db_field.name == 'companies':
+            kwargs['widget'] = SortedFilteredSelectMultiple(attrs={'verbose_name': 'company', 'verbose_name_plural': 'companies'})
+        return super(EventAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
 
 admin.site.register(models.Event, EventAdmin)
 
