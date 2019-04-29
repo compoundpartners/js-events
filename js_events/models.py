@@ -312,7 +312,7 @@ class EventRelatedPlugin(PluginEditModeMixin, AdjustableCacheModelMixin,
         CMSPlugin, related_name='+', parent_link=True)
 
     title = models.CharField(max_length=255, blank=True, verbose_name=_('Title'))
-    icon = Icon(blank=False, default='fa-')
+    icon = Icon(blank=False, default='')
     image = FilerImageField(null=True, blank=True, related_name="related_events_title_image")
     number_of_items = models.PositiveSmallIntegerField(verbose_name=_('Number of events'))
     layout = models.CharField(max_length=30, verbose_name=_('layout'))

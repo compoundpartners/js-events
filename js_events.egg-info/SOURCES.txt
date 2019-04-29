@@ -13,6 +13,7 @@ js_events/cms_toolbars.py
 js_events/cms_wizards.py
 js_events/constants.py
 js_events/feeds.py
+js_events/filters.py
 js_events/forms.py
 js_events/managers.py
 js_events/models.py
@@ -23,12 +24,16 @@ js_events.egg-info/PKG-INFO
 js_events.egg-info/SOURCES.txt
 js_events.egg-info/dependency_links.txt
 js_events.egg-info/not-zip-safe
+js_events.egg-info/requires.txt
 js_events.egg-info/top_level.txt
 js_events/migrations/0001_initial.py
 js_events/migrations/0002_auto_20190213_0944.py
 js_events/migrations/0003_eventrelatedplugin.py
 js_events/migrations/0004_auto_20190213_2050.py
 js_events/migrations/0005_auto_20190218_0714.py
+js_events/migrations/0006_event_city.py
+js_events/migrations/0007_remove_event_city.py
+js_events/migrations/0008_event_companies.py
 js_events/migrations/__init__.py
 js_events/templates/js_events/base.html
 js_events/templates/js_events/event_detail.html
@@ -40,5 +45,6 @@ js_events/templates/js_events/includes/search_results.html
 js_events/templates/js_events/includes/sidebar.html
 js_events/templates/js_events/plugins/related_events__cols.html
 js_events/templates/js_events/plugins/related_events__events.html
+js_events/templates/js_events/plugins/related_events__filter.html
 js_events/templates/js_events/plugins/related_events__hero.html
 js_events/templates/js_events/plugins/related_events__rows.html

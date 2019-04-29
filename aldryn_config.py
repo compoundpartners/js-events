@@ -11,5 +11,6 @@ class Form(forms.BaseForm):
 
         if data['summary_richtext']:
             settings['EVENTS_SUMMARY_RICHTEXT'] = int(data['summary_richtext'])
-
+        settings['INSTALLED_APPS'].append('django_filters')
+        settings['INSTALLED_APPS'].append('crispy_forms')
         return settings
