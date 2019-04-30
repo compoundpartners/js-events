@@ -7,3 +7,9 @@ EVENTS_SUMMARY_RICHTEXT = getattr(
     'EVENTS_SUMMARY_RICHTEXT',
     False,
 )
+
+try:
+    IS_THERE_COMPANIES = True
+    from js_companies.models import Company
+except:
+    IS_THERE_COMPANIES = False

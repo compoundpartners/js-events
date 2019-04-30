@@ -7,6 +7,7 @@ from aldryn_translation_tools.admin import AllTranslationsMixin
 from cms.admin.placeholderadmin import FrontendEditableAdminMixin
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
+from django import forms
 from django.forms import widgets
 from parler.admin import TranslatableAdmin
 from parler.forms import TranslatableModelForm
@@ -16,7 +17,10 @@ from . import models
 
 from .constants import (
     EVENTS_SUMMARY_RICHTEXT,
+    IS_THERE_COMPANIES,
 )
+if IS_THERE_COMPANIES:
+    from js_companies.models import Company
 
 from cms.admin.placeholderadmin import PlaceholderAdminMixin
 
@@ -54,35 +58,11 @@ make_not_featured.short_description = _(
 
 
 class EventAdminForm(TranslatableModelForm):
+    companies = forms.CharField()
 
     class Meta:
         model = models.Event
-        fields = [
-            'app_config',
-            'categories',
-            'companies',
-            'featured_image',
-            'is_featured',
-            'is_published',
-            'lead_in',
-            'location',
-            'latitude',
-            'longitude',
-            'host',
-            'host_2',
-            'host_3',
-            'event_start',
-            'event_end',
-            'registration_until',
-            'registration_link',
-            'external_link',
-            'meta_description',
-            'meta_keywords',
-            'meta_title',
-            'slug',
-            'services',
-            'title',
-        ]
+        fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         super(EventAdminForm, self).__init__(*args, **kwargs)
@@ -90,6 +70,13 @@ class EventAdminForm(TranslatableModelForm):
         if not EVENTS_SUMMARY_RICHTEXT:
             self.fields['lead_in'].widget = widgets.Textarea()
             self.fields['location'].widget = widgets.Textarea()
+        if IS_THERE_COMPANIES:
+            self.fields['companies'] = forms.ModelMultipleChoiceField(queryset=Company.objects.all(), required=False)# self.instance.companies
+            self.fields['companies'].widget = SortedFilteredSelectMultiple()
+            self.fields['companies'].queryset = Company.objects.all()
+            self.fields['companies'].initial = self.instance.companies.all()
+        else:
+            del self.fields['companies']
 
 
 class EventAdmin(
@@ -105,7 +92,6 @@ class EventAdmin(
         'app_config',
         'categories',
         'services',
-        'companies',
     ]
     actions = (
         make_featured, make_not_featured,
@@ -115,6 +101,18 @@ class EventAdmin(
          return obj.title
     title_view.short_description  = 'title'
     title_view.admin_order_field = 'translations__title'
+
+    advanced_fields = (
+        'categories',
+        'services',
+    )
+    if IS_THERE_COMPANIES:
+        advanced_fields += (
+            'companies',
+        )
+    advanced_fields += (
+        'app_config',
+    )
 
     fieldsets = (
         (None, {
@@ -149,12 +147,7 @@ class EventAdmin(
         }),
         (_('Advanced Settings'), {
             'classes': ('collapse',),
-            'fields': (
-                'categories',
-                'services',
-                'companies',
-                'app_config',
-            )
+            'fields': advanced_fields
         }),
     )
 
@@ -175,6 +168,11 @@ class EventAdmin(
         if db_field.name == 'companies':
             kwargs['widget'] = SortedFilteredSelectMultiple(attrs={'verbose_name': 'company', 'verbose_name_plural': 'companies'})
         return super(EventAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        if IS_THERE_COMPANIES:
+            obj.companies = Company.objects.filter(pk__in=form.cleaned_data.get('companies'))
 
 admin.site.register(models.Event, EventAdmin)
 

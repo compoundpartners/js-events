@@ -34,6 +34,8 @@ js_events/migrations/0005_auto_20190218_0714.py
 js_events/migrations/0006_event_city.py
 js_events/migrations/0007_remove_event_city.py
 js_events/migrations/0008_event_companies.py
+js_events/migrations/0009_auto_20190429_1705.py
+js_events/migrations/0010_remove_event_companies.py
 js_events/migrations/__init__.py
 js_events/templates/js_events/base.html
 js_events/templates/js_events/event_detail.html

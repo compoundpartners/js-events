@@ -123,8 +123,6 @@ class Event(TranslatedAutoSlugifyMixin,
         verbose_name=_('Section'),
         help_text='',
     )
-    companies = SortedManyToManyField('js_companies.Company',
-        verbose_name=_('companies'), blank=True)
     categories = CategoryManyToManyField(Category,
                                          verbose_name=_('categories'),
                                          blank=True)
