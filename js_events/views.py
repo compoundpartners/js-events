@@ -116,6 +116,9 @@ class EventDetail(AppConfigMixin, AppHookCheckMixin, PreviewModeMixin,
         if not hasattr(self, 'object'):
             self.object = self.get_object()
         set_language_changer(request, self.object.get_absolute_url)
+        if self.object.redirect_url:
+            return HttpResponseRedirect(self.object.redirect_url)
+
         url = self.object.get_absolute_url()
         if (self.config.non_permalink_handling == 200 or request.path == url):
             # Continue as normal

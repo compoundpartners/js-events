@@ -115,6 +115,11 @@ class Event(TranslatedAutoSlugifyMixin,
         blank=True, default='',
         help_text=_('link to an external registration system'),
     )
+    redirect_url = models.CharField(max_length=255,
+        verbose_name=_('Redirect URL'),
+        blank=True, default='',
+        help_text=_('when this value is filled in the Event page does not load, it redirects to the entered url'),
+    )
 
     content = PlaceholderField('Event Content',
                                related_name='events_event_content')
