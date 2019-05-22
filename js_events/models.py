@@ -132,6 +132,8 @@ class Event(TranslatedAutoSlugifyMixin,
                                        db_index=True)
     is_featured = models.BooleanField(_('is featured'), default=False,
                                       db_index=True)
+    hero_event = models.BooleanField(_('Hero Event'), default=False,
+                                      db_index=True)
     featured_image = FilerImageField(
         verbose_name=_('featured image'),
         null=True,

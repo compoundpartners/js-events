@@ -136,6 +136,7 @@ class EventAdmin(
                 'publishing_date',
                 'is_published',
                 'is_featured',
+                'hero_event',
             )
         }),
         (_('Meta Options'), {
