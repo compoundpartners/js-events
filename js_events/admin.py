@@ -8,6 +8,7 @@ from cms.admin.placeholderadmin import FrontendEditableAdminMixin
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 from django import forms
+from django.db.models import SlugField
 from django.forms import widgets
 from parler.admin import TranslatableAdmin
 from parler.forms import TranslatableModelForm
@@ -192,3 +193,15 @@ class EventsConfigAdmin(
 
 
 admin.site.register(models.EventsConfig, EventsConfigAdmin)
+
+
+class SpeakerAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'is_published', 'company')
+    search_fields = ('first_name', 'last_name')
+    prepopulated_fields = {'slug': ('first_name', 'last_name')}
+    formfield_overrides = {
+        SlugField: {'widget': widgets.HiddenInput},
+    }
+
+
+admin.site.register(models.Speaker, SpeakerAdmin)

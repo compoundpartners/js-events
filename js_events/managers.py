@@ -26,6 +26,12 @@ class EventQuerySet(QuerySetMixin, TranslatableQuerySet):
         return self.filter(is_published=True, publishing_date__lte=now())
 
 
+class SpeakerManager(models.Manager):
+
+    def published(self):
+        return self.get_queryset().filter(is_published=True)
+
+
 class RelatedManager(ManagerMixin, TranslatableManager):
     def get_queryset(self):
         qs = EventQuerySet(self.model, using=self.db)

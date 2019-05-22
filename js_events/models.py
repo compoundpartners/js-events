@@ -28,7 +28,7 @@ from parler.models import TranslatableModel, TranslatedFields
 from aldryn_newsblog.utils import get_plugin_index_data, get_request, strip_tags
 
 from .cms_appconfig import EventsConfig
-from .managers import RelatedManager
+from .managers import RelatedManager, SpeakerManager
 
 try:
     from django.utils.encoding import force_unicode
@@ -273,6 +273,65 @@ class Event(TranslatedAutoSlugifyMixin,
 
     def __str__(self):
         return self.safe_translation_getter('title', any_language=True)
+
+
+@python_2_unicode_compatible
+class Speaker(models.Model):
+    first_name = models.CharField(
+        _('first name'), max_length=255, blank=False,
+        default='', help_text=_("Provide this speaker's first name."))
+    last_name = models.CharField(
+        _('last name'), max_length=255, blank=False,
+        default='', help_text=_("Provide this speaker's last name."))
+    suffix = models.CharField(
+        _('suffix'), max_length=60, blank=True,
+        default='', help_text=_("Provide this speaker's suffix."))
+    slug = models.SlugField(
+        _('unique slug'), max_length=255, blank=True,
+        default='',
+        help_text=_("Leave blank to auto-generate a unique slug."))
+    company = models.CharField(
+        _('company'), max_length=255, blank=True,
+        default='', help_text=_("Provide this speaker's company."))
+    link = models.URLField(
+        verbose_name=_('link'), null=True, blank=True)
+
+    description = HTMLField(_('description'), blank=True, default='')
+    function = models.CharField(_('role'), max_length=255, blank=True, default=''),
+    is_published = models.BooleanField(
+        verbose_name=_('show on website'), default=True)
+    visual = FilerImageField(
+        null=True, blank=True, default=None, on_delete=models.SET_NULL)
+    email = models.EmailField(
+        verbose_name=_("email"), blank=True, default='')
+    mobile = models.CharField(
+        verbose_name=_('mobile'), null=True, blank=True, max_length=100)
+    phone = models.CharField(
+        verbose_name=_('phone'), null=True, blank=True, max_length=100)
+    second_phone = models.CharField(
+        verbose_name=_('secondary phone'), null=True, blank=True, max_length=100)
+    fax = models.CharField(
+        verbose_name=_('fax'), null=True, blank=True, max_length=100)
+    facebook = models.URLField(
+        verbose_name=_('facebook'), null=True, blank=True, max_length=200)
+    twitter = models.CharField(
+        verbose_name=_('twitter'), null=True, blank=True, max_length=100)
+    linkedin = models.URLField(
+        verbose_name=_('linkedin'), null=True, blank=True, max_length=200)
+    #vcard_enabled = models.BooleanField(
+        #verbose_name=_('enable vCard download'), default=True)
+
+    objects = SpeakerManager()
+
+    class Meta:
+        verbose_name = _('Speaker')
+        verbose_name_plural = _('Speakers')
+
+    def __str__(self):
+        return '%s %s' % (self.first_name, self.last_name)
+
+    def name(self):
+        return self.__str__()
 
 
 class PluginEditModeMixin(object):
