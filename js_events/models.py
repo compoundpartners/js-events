@@ -304,7 +304,7 @@ class Speaker(models.Model):
         verbose_name=_('link'), null=True, blank=True)
 
     description = HTMLField(_('description'), blank=True, default='')
-    function = models.CharField(_('role'), max_length=255, blank=True, default=''),
+    function = models.CharField(_('role'), max_length=255, blank=True, default='')
     is_published = models.BooleanField(
         verbose_name=_('show on website'), default=True)
     visual = FilerImageField(
