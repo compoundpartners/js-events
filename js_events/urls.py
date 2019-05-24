@@ -38,6 +38,18 @@ urlpatterns = [
         EventDetail.as_view(), name='event-detail'),
     url(r'^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<slug>\w[-\w]*)/$',  # flake8: NOQA
         EventDetail.as_view(), name='event-detail'),
+    #spport download vCard
+    url(r'^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<pk>\d+)/vcard/(?P<speaker_slug>\w[-\w]*)/$',
+        EventDetail.as_view(), name='event-detail'),
+    # These support permalinks with <event_slug>
+    url(r'^(?P<slug>\w[-\w]*)/vcard/(?P<speaker_slug>\w[-\w]*)/$',
+        EventDetail.as_view(), name='event-detail'),
+    url(r'^(?P<year>\d{4})/(?P<slug>\w[-\w]*)/vcard/(?P<speaker_slug>\w[-\w]*)/$',
+        EventDetail.as_view(), name='event-detail'),
+    url(r'^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<slug>\w[-\w]*)/vcard/(?P<speaker_slug>\w[-\w]*)/$',
+        EventDetail.as_view(), name='event-detail'),
+    url(r'^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<slug>\w[-\w]*)/vcard/(?P<speaker_slug>\w[-\w]*)/$',  # flake8: NOQA
+        EventDetail.as_view(), name='event-detail'),
 
     url(r'^category/(?P<category>\w[-\w]*)/$',
         CategoryEventList.as_view(), name='event-list-by-category'),

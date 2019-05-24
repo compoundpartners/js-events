@@ -10,6 +10,7 @@ from django.db.models import Q
 from django.db.models.functions import Lower
 from django.http import (
     Http404,
+    HttpResponse,
     HttpResponseRedirect,
     HttpResponsePermanentRedirect,
 )
@@ -29,7 +30,7 @@ from aldryn_people.models import Person
 from aldryn_newsblog.utils.utilities import get_valid_languages_from_request
 from aldryn_newsblog.utils import add_prefix_to_path
 from .cms_appconfig import EventsConfig
-from .models import Event
+from .models import Event, Speaker
 
 
 class TemplatePrefixMixin(object):
@@ -109,6 +110,23 @@ class EventDetail(AppConfigMixin, AppHookCheckMixin, PreviewModeMixin,
     pk_url_kwarg = 'pk'
 
     def get(self, request, *args, **kwargs):
+        if 'speaker_slug' in kwargs:
+            speaker_slug = kwargs['speaker_slug']
+            print(speaker_slug)
+            speaker = Speaker.objects.published().filter(slug=speaker_slug, vcard_enabled=True)
+            print(speaker)
+            if speaker.count() != 1:
+                raise Http404
+            filename = "%s.vcf" % str(speaker_slug)
+            vcard = speaker[0].get_vcard(request)
+            try:
+                vcard = vcard.decode('utf-8').encode('ISO-8859-1')
+            except UnicodeError:
+                pass
+            response = HttpResponse(vcard, content_type="text/x-vCard")
+            response['Content-Disposition'] = 'attachment; filename="{0}"'.format(
+                filename)
+            return response
         """
         This handles non-permalinked URLs according to preferences as set in
         EventsConfig.

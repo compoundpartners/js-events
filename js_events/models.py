@@ -2,6 +2,9 @@
 
 from __future__ import unicode_literals
 
+import base64
+import six
+
 from aldryn_apphooks_config.fields import AppHookConfigField
 from aldryn_categories.models import Category
 from aldryn_categories.fields import CategoryManyToManyField
@@ -26,7 +29,7 @@ from filer.fields.image import FilerImageField
 from djangocms_icon.fields import Icon
 from parler.models import TranslatableModel, TranslatedFields
 from aldryn_newsblog.utils import get_plugin_index_data, get_request, strip_tags
-
+from aldryn_people.vcard import Vcard
 from .cms_appconfig import EventsConfig
 from .managers import RelatedManager, SpeakerManager
 
@@ -34,6 +37,11 @@ try:
     from django.utils.encoding import force_unicode
 except ImportError:
     from django.utils.encoding import force_text as force_unicode
+
+try:
+    import urlparse
+except ImportError:
+    from urllib import parse as urlparse
 
 
 @python_2_unicode_compatible
@@ -325,8 +333,8 @@ class Speaker(models.Model):
         verbose_name=_('twitter'), null=True, blank=True, max_length=100)
     linkedin = models.URLField(
         verbose_name=_('linkedin'), null=True, blank=True, max_length=200)
-    #vcard_enabled = models.BooleanField(
-        #verbose_name=_('enable vCard download'), default=True)
+    vcard_enabled = models.BooleanField(
+        verbose_name=_('enable vCard download'), default=True)
 
     objects = SpeakerManager()
 
@@ -339,6 +347,45 @@ class Speaker(models.Model):
 
     def name(self):
         return self.__str__()
+
+    def get_vcard_url(self, language=None):
+        return 'vcard/%s/' % self.slug
+
+
+    def get_vcard(self, request=None):
+        vcard = Vcard()
+
+        safe_name = self.name()
+        vcard.add_line('FN', safe_name)
+        vcard.add_line('N', [None, safe_name, None, None, None])
+
+        if self.visual:
+            ext = self.visual.extension.upper()
+            try:
+                with open(self.visual.path, 'rb') as f:
+                    data = force_text(base64.b64encode(f.read()))
+                    vcard.add_line('PHOTO', data, TYPE=ext, ENCODING='b')
+            except IOError:
+                if request:
+                    url = urlparse.urljoin(request.build_absolute_uri(),
+                                           self.visual.url),
+                    vcard.add_line('PHOTO', url, TYPE=ext)
+
+        if self.email:
+            vcard.add_line('EMAIL', self.email)
+
+        if self.function:
+            vcard.add_line('TITLE', self.function)
+
+        if self.phone:
+            vcard.add_line('TEL', self.phone, TYPE='WORK')
+        if self.mobile:
+            vcard.add_line('TEL', self.mobile, TYPE='CELL')
+
+        if self.fax:
+            vcard.add_line('TEL', self.fax, TYPE='FAX')
+
+        return six.b('{}'.format(vcard))
 
 
 class PluginEditModeMixin(object):

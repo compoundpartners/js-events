@@ -201,9 +201,9 @@ class SpeakerAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'is_published', 'company')
     search_fields = ('first_name', 'last_name')
     prepopulated_fields = {'slug': ('first_name', 'last_name')}
-    formfield_overrides = {
-        SlugField: {'widget': widgets.HiddenInput},
-    }
+    #formfield_overrides = {
+        #SlugField: {'widget': widgets.HiddenInput},
+    #}
 
 
 admin.site.register(models.Speaker, SpeakerAdmin)
