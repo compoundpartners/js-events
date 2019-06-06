@@ -192,6 +192,10 @@ class EventDetail(AppConfigMixin, AppHookCheckMixin, PreviewModeMixin,
             context['related_categories_first'] = related_categories_first.slug
         else:
             context['related_categories_first'] = 'all'
+        ra_qs = Event.objects.published().distinct()
+        ra_qs = ra_qs.filter(categories__in=event.categories.all())
+        ra_qs = ra_qs.exclude(id=event.id)
+        context['related_events'] = ra_qs[:3]
 
         return context
 
