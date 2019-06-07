@@ -97,6 +97,16 @@ class Event(TranslatedAutoSlugifyMixin,
         search_data=models.TextField(blank=True, editable=False)
     )
 
+    price=models.CharField(
+        max_length=255,
+        verbose_name=_('Event Price'),
+        blank=True,
+        default='')
+    cpd_points=models.CharField(
+        max_length=255,
+        verbose_name=_('CPD Points'),
+        blank=True,
+        default='')
     event_start = models.DateTimeField(_('Event start'), default=now)
     event_end = models.DateTimeField(_('Event end'), null=True, blank=True)
     latitude = models.DecimalField(max_digits=8, decimal_places=5,

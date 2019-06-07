@@ -7,6 +7,16 @@ EVENTS_SUMMARY_RICHTEXT = getattr(
     'EVENTS_SUMMARY_RICHTEXT',
     False,
 )
+EVENTS_ENABLE_PRICE = getattr(
+    settings,
+    'EVENTS_ENABLE_PRICE',
+    True,
+)
+EVENTS_ENABLE_CPD = getattr(
+    settings,
+    'EVENTS_ENABLE_CPD',
+    True,
+)
 
 try:
     IS_THERE_COMPANIES = True

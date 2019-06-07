@@ -18,6 +18,8 @@ from . import models
 
 from .constants import (
     EVENTS_SUMMARY_RICHTEXT,
+    EVENTS_ENABLE_PRICE,
+    EVENTS_ENABLE_CPD,
     IS_THERE_COMPANIES,
 )
 if IS_THERE_COMPANIES:
@@ -104,6 +106,19 @@ class EventAdmin(
     title_view.short_description  = 'title'
     title_view.admin_order_field = 'translations__title'
 
+    extra_fields = (
+    )
+
+    if EVENTS_ENABLE_PRICE:
+        extra_fields += (
+            'price',
+        )
+
+    if EVENTS_ENABLE_CPD:
+        extra_fields += (
+            'cpd_points',
+        )
+
     advanced_fields = (
         'categories',
         'services',
@@ -131,13 +146,12 @@ class EventAdmin(
                 'event_end',
                 'registration_until',
                 'registration_link',
-                'external_link',
                 'redirect_url',
-
                 'publishing_date',
                 'is_published',
                 'is_featured',
                 'hero_event',
+                extra_fields
             )
         }),
         (_('Meta Options'), {
@@ -154,8 +168,6 @@ class EventAdmin(
             'fields': advanced_fields
         }),
     )
-
-
 
     filter_horizontal = [
         'categories',
