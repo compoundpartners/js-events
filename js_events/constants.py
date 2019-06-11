@@ -17,7 +17,11 @@ EVENTS_ENABLE_CPD = getattr(
     'EVENTS_ENABLE_CPD',
     True,
 )
-
+ADD_FILTERED_CATEGORIES = getattr(
+    settings,
+    'EVENTS_ADD_FILTERED_CATEGORIES',
+    [],
+)
 try:
     IS_THERE_COMPANIES = True
     from js_companies.models import Company
