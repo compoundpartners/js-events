@@ -10,6 +10,7 @@ from . import models
 from .constants import (
     IS_THERE_COMPANIES,
     ADD_FILTERED_CATEGORIES,
+    ADDITIONAL_EXCLUDE,
 )
 if IS_THERE_COMPANIES:
     from js_companies.models import Company
