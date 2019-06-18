@@ -22,6 +22,11 @@ ADD_FILTERED_CATEGORIES = getattr(
     'EVENTS_ADD_FILTERED_CATEGORIES',
     [],
 )
+ADDITIONAL_EXCLUDE = getattr(
+    settings,
+    'EVENTS_ADDITIONAL_EXCLUDE',
+    {},
+)
 try:
     IS_THERE_COMPANIES = True
     from js_companies.models import Company

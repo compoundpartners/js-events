@@ -31,8 +31,8 @@ class DateFilter(django_filters.ChoiceFilter):
 class EventFilters(django_filters.FilterSet):
     #date = DateFilter('event_start', 'gt')
     q = django_filters.CharFilter('translations__title', 'icontains', label='Search the directory')
-    service = django_filters.ModelChoiceFilter('services', label='service', queryset=Service.objects.published().all().order_by('translations__title'))
-    category = django_filters.ModelChoiceFilter('categories', label='category', queryset=Category.objects.all().order_by('translations__name'))
+    service = django_filters.ModelChoiceFilter('services', label='service', queryset=Service.objects.published().exclude(**ADDITIONAL_EXCLUDE.get('service', {})).order_by('translations__title'))
+    category = django_filters.ModelChoiceFilter('categories', label='category', queryset=Category.objects.exclude(**ADDITIONAL_EXCLUDE.get('category', {})).order_by('translations__name'))
 
     class Meta:
         model = models.Event
@@ -45,11 +45,11 @@ class EventFilters(django_filters.FilterSet):
         self.filters['service'].extra.update({'empty_label': 'by service'})
         self.filters['category'].extra.update({'empty_label': 'by category'})
         if IS_THERE_COMPANIES:
-            self.filters['company'] = django_filters.ModelChoiceFilter('companies', label='company', queryset=Company.objects.all().order_by('name'))
+            self.filters['company'] = django_filters.ModelChoiceFilter('companies', label='company', queryset=Company.objects.exclude(**ADDITIONAL_EXCLUDE.get('company', {})).order_by('name'))
             self.filters['company'].extra.update({'empty_label': 'by company'})
         if ADD_FILTERED_CATEGORIES:
             for category in ADD_FILTERED_CATEGORIES:
-                qs = Category.objects.filter(translations__slug=category[0])[0].get_children().order_by('translations__name') if Category.objects.filter(translations__slug=category[0]).exists() else Category.objects.none()
+                qs = Category.objects.filter(translations__slug=category[0])[0].get_children().exclude(**ADDITIONAL_EXCLUDE.get(category[0], {})).order_by('translations__name') if Category.objects.filter(translations__slug=category[0]).exists() else Category.objects.none()
                 name = category[0].replace('-', '_')
                 self.filters[name] = django_filters.ModelChoiceFilter('categories', label=category[1], queryset=qs)
                 self.filters[name].extra.update({'empty_label': 'by %s' % category[1]})
