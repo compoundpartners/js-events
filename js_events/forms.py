@@ -6,15 +6,9 @@ from aldryn_categories.models import Category
 from aldryn_people.models import Person
 from js_services.models import Service
 from .cms_appconfig import EventsConfig
+from .constants import RELATED_LAYOUTS
 
 
-LAYOUT_CHOICES = [
-    ('cols', 'Columns'),
-    ('rows', 'Rows'),
-    ('hero', 'Hero'),
-    ('events', 'Events'),
-    ('filter', 'Filter'),
-]
 
 TIME_PERIODS = [
     ('all', 'All'),
@@ -25,7 +19,7 @@ TIME_PERIODS = [
 
 class EventRelatedPluginForm(forms.ModelForm):
 
-    layout = forms.ChoiceField(LAYOUT_CHOICES)
+    layout = forms.ChoiceField(RELATED_LAYOUTS)
     time_period = forms.ChoiceField(TIME_PERIODS)
 
     related_types = forms.ModelMultipleChoiceField(

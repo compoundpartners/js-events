@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.conf import settings
+from django.utils.text import slugify
 
 EVENTS_SUMMARY_RICHTEXT = getattr(
     settings,
@@ -27,6 +28,22 @@ ADDITIONAL_EXCLUDE = getattr(
     'EVENTS_ADDITIONAL_EXCLUDE',
     {},
 )
+EVENTS_RELATED_LAYOUTS = getattr(
+    settings,
+    'EVENTS_RELATED_LAYOUTS',
+    (),
+)
+if EVENTS_RELATED_LAYOUTS:
+    RELATED_LAYOUTS = list(zip(map(lambda s: slugify(s).replace('-', '_'), EVENTS_RELATED_LAYOUTS), EVENTS_RELATED_LAYOUTS))
+else:
+    RELATED_LAYOUTS = (
+        ('cols', 'Columns'),
+        ('rows', 'Rows'),
+        ('hero', 'Hero'),
+        ('events', 'Events'),
+        ('filter', 'Filter'),
+    )
+
 try:
     IS_THERE_COMPANIES = True
     from js_companies.models import Company

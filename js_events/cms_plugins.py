@@ -10,6 +10,7 @@ from cms import __version__ as cms_version
 from cms.plugin_base import CMSPluginBase
 from cms.plugin_pool import plugin_pool
 from . import models, forms, filters
+from .constants import RELATED_LAYOUTS
 
 
 CMS_GTE_330 = LooseVersion(cms_version) >= LooseVersion('3.3.0')
@@ -51,7 +52,7 @@ class EventRelatedPlugin(AdjustableCacheMixin, CMSPluginBase):
     name = _('Related Events')
     model = models.EventRelatedPlugin
     form = forms.EventRelatedPluginForm
-    render_template = TEMPLATE_NAME % forms.LAYOUT_CHOICES[0][0]
+    render_template = TEMPLATE_NAME % RELATED_LAYOUTS[0][0]
 
     def get_event(self, request):
         if request and request.resolver_match:
