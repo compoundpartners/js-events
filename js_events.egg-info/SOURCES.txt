@@ -43,6 +43,7 @@ js_events/migrations/0014_speaker_function.py
 js_events/migrations/0015_speaker_vcard_enabled.py
 js_events/migrations/0016_auto_20190607_1122.py
 js_events/migrations/0017_auto_20190607_1128.py
+js_events/migrations/0018_event_link_text.py
 js_events/migrations/__init__.py
 js_events/templates/js_events/base.html
 js_events/templates/js_events/event_detail.html
