@@ -133,6 +133,11 @@ class Event(TranslatedAutoSlugifyMixin,
         blank=True, default='',
         help_text=_('link to an external registration system'),
     )
+    link_text = models.CharField(max_length=255,
+        verbose_name=_('Link Text'),
+        blank=True, default='',
+        help_text=_('Text to appear on either the Registration Link or External Link'),
+    )
     redirect_url = models.CharField(max_length=255,
         verbose_name=_('Redirect URL'),
         blank=True, default='',
