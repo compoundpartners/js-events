@@ -51,6 +51,7 @@ js_events/templates/js_events/js_events.html
 js_events/templates/js_events/includes/event-item.html
 js_events/templates/js_events/includes/event.html
 js_events/templates/js_events/includes/pagination.html
+js_events/templates/js_events/includes/search_form.html
 js_events/templates/js_events/includes/search_results.html
 js_events/templates/js_events/includes/sidebar.html
 js_events/templates/js_events/plugins/related_events__cols.html

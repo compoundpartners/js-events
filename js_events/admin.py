@@ -147,6 +147,7 @@ class EventAdmin(
                 'registration_until',
                 'registration_link',
                 'redirect_url',
+                'link_text',
                 'publishing_date',
                 'is_published',
                 'is_featured',
