@@ -8,6 +8,7 @@ from js_services.models import Service
 import django_filters
 from . import models
 from .constants import (
+    UPDATE_SEARCH_DATA_ON_SAVE,
     IS_THERE_COMPANIES,
     ADD_FILTERED_CATEGORIES,
     ADDITIONAL_EXCLUDE,
@@ -45,6 +46,8 @@ class EventFilters(django_filters.FilterSet):
         #self.filters['date'].extra.update({'choices': TIME_PERIODS})
         self.filters['service'].extra.update({'empty_label': 'by service'})
         self.filters['category'].extra.update({'empty_label': 'by category'})
+        if UPDATE_SEARCH_DATA_ON_SAVE:
+            self.filters['q'] = django_filters.CharFilter('translations__search_data', 'icontains', label='Search the directory')
         if IS_THERE_COMPANIES:
             self.filters['company'] = django_filters.ModelChoiceFilter('companies', label='company', queryset=Company.objects.exclude(**ADDITIONAL_EXCLUDE.get('company', {})).order_by('name'))
             self.filters['company'].extra.update({'empty_label': 'by company'})

@@ -3,6 +3,11 @@
 from django.conf import settings
 from django.utils.text import slugify
 
+UPDATE_SEARCH_DATA_ON_SAVE = getattr(
+    settings,
+    'EVENTS_UPDATE_SEARCH_DATA_ON_SAVE',
+    False,
+)
 EVENTS_SUMMARY_RICHTEXT = getattr(
     settings,
     'EVENTS_SUMMARY_RICHTEXT',

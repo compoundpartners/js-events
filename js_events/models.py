@@ -283,8 +283,9 @@ class Event(TranslatedAutoSlugifyMixin,
         for category in self.categories.all():
             text_bits.append(
                 force_unicode(category.safe_translation_getter('name')))
-        for tag in self.tags.all():
-            text_bits.append(force_unicode(tag.name))
+        for service in self.services.all():
+            text_bits.append(
+                force_unicode(service.safe_translation_getter('title')))
         if self.content:
             plugins = self.content.cmsplugin_set.filter(language=language)
             for base_plugin in plugins:
