@@ -169,6 +169,11 @@ class Event(TranslatedAutoSlugifyMixin,
         on_delete=models.SET_NULL,
     )
 
+    show_on_sitemap = models.BooleanField(_('Show on sitemap'), null=False, default=True)
+    show_on_xml_sitemap = models.BooleanField(_('Show on xml sitemap'), null=False, default=True)
+    noindex = models.BooleanField(_('noindex'), null=False, default=False)
+    nofollow = models.BooleanField(_('nofollow'), null=False, default=False)
+
     # Setting "symmetrical" to False since it's a bit unexpected that if you
     # set "B relates to A" you immediately have also "A relates to B". It have
     # to be forced to False because by default it's True if rel.to is "self":

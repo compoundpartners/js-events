@@ -49,6 +49,16 @@ else:
         ('filter', 'Filter'),
     )
 
+SITEMAP_CHANGEFREQ = getattr(
+    settings,
+    'EVENTS_SITEMAP_CHANGEFREQ',
+    'never',
+)
+SITEMAP_PRIORITY = getattr(
+    settings,
+    'EVENTS_SITEMAP_PRIORITY',
+    0.5,
+)
 try:
     IS_THERE_COMPANIES = True
     from js_companies.models import Company
