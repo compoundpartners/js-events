@@ -457,6 +457,9 @@ class EventRelatedPlugin(PluginEditModeMixin, AdjustableCacheModelMixin,
     related_categories = SortedManyToManyField(Category, verbose_name=_('related categories'), blank=True, symmetrical=False)
     related_services = SortedManyToManyField('js_services.Service', verbose_name=_('related services'), blank=True, symmetrical=False)
     related_hosts = SortedManyToManyField(Person, verbose_name=_('related hosts'), blank=True, symmetrical=False)
+    more_button_is_shown = models.BooleanField(blank=True, default=False, verbose_name=_('Show “See More Button”'))
+    more_button_text = models.CharField(max_length=255, blank=True, verbose_name=_('See More Button Text'))
+    more_button_link = models.CharField(max_length=255, blank=True, verbose_name=_('See More Button Link'))
 
     def copy_relations(self, oldinstance):
         self.related_types = oldinstance.related_types.all()

@@ -53,6 +53,24 @@ class EventRelatedPlugin(AdjustableCacheMixin, CMSPluginBase):
     model = models.EventRelatedPlugin
     form = forms.EventRelatedPluginForm
     render_template = TEMPLATE_NAME % RELATED_LAYOUTS[0][0]
+    fields = [
+        'title',
+        'icon',
+        'image',
+        'number_of_items',
+        'layout',
+        'time_period',
+        'featured',
+        'exclude_current_item',
+        'more_button_is_shown',
+        'more_button_text',
+        'more_button_link'
+        'related_types',
+        'related_categories',
+        'related_services',
+        'related_hosts',
+    ]
+
 
     def get_event(self, request):
         if request and request.resolver_match:
