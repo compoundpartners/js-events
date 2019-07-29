@@ -185,11 +185,13 @@ class Event(TranslatedAutoSlugifyMixin,
     # https://github.com/django/django/blob/1.8.4/django/db/models/fields/related.py#L977
     services = SortedManyToManyField('js_services.Service',
         verbose_name=_('services'), blank=True)
+    locations = SortedManyToManyField('js_locations.location',
+        verbose_name=_('locations'), blank=True)
 
     objects = RelatedManager()
 
     class Meta:
-        ordering = ['-publishing_date']
+        ordering = ['-event_start']
 
     def get_class(self):
         '''Return class name'''

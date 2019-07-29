@@ -96,6 +96,7 @@ class EventAdmin(
         'app_config',
         'categories',
         'services',
+        'locations',
     ]
     actions = (
         make_featured, make_not_featured,
