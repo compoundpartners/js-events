@@ -459,6 +459,8 @@ class EventRelatedPlugin(PluginEditModeMixin, AdjustableCacheModelMixin,
     related_categories = SortedManyToManyField(Category, verbose_name=_('related categories'), blank=True, symmetrical=False)
     related_services = SortedManyToManyField('js_services.Service', verbose_name=_('related services'), blank=True, symmetrical=False)
     related_hosts = SortedManyToManyField(Person, verbose_name=_('related hosts'), blank=True, symmetrical=False)
+    related_locations = SortedManyToManyField('js_locations.location', verbose_name=_('related locations'), blank=True)
+
     more_button_is_shown = models.BooleanField(blank=True, default=False, verbose_name=_('Show “See More Button”'))
     more_button_text = models.CharField(max_length=255, blank=True, verbose_name=_('See More Button Text'))
     more_button_link = models.CharField(max_length=255, blank=True, verbose_name=_('See More Button Link'))
@@ -468,6 +470,7 @@ class EventRelatedPlugin(PluginEditModeMixin, AdjustableCacheModelMixin,
         self.related_categories = oldinstance.related_categories.all()
         self.related_services = oldinstance.related_services.all()
         self.related_hosts = oldinstance.related_hosts.all()
+        self.related_locations = oldinstance.related_locations.all()
 
     def __str__(self):
         return ugettext('Related events')

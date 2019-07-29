@@ -69,6 +69,7 @@ class EventRelatedPlugin(AdjustableCacheMixin, CMSPluginBase):
         'related_categories',
         'related_services',
         'related_hosts',
+        'related_locations',
     ]
 
 
@@ -94,6 +95,7 @@ class EventRelatedPlugin(AdjustableCacheMixin, CMSPluginBase):
         related_hosts = instance.related_hosts.all()
         related_categories = instance.related_categories.all()
         related_services = instance.related_services.all()
+        related_locations = instance.related_locations.all()
 
         qs = models.Event.objects.published().distinct()
         if related_types.exists():
@@ -104,6 +106,8 @@ class EventRelatedPlugin(AdjustableCacheMixin, CMSPluginBase):
             qs = qs.filter(categories__in=related_categories.all())
         if related_services:
             qs = qs.filter(services__in=related_services.all())
+        if related_locations:
+            qs = qs.filter(services__in=related_locations.all())
         if instance.exclude_current_item:
             current_event = self.get_event(request)
             if current_event is not None:

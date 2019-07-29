@@ -5,6 +5,7 @@ from django.contrib.admin.widgets import FilteredSelectMultiple
 from aldryn_categories.models import Category
 from aldryn_people.models import Person
 from js_services.models import Service
+from js_locations.models import Location
 from .cms_appconfig import EventsConfig
 from .constants import RELATED_LAYOUTS
 
@@ -42,6 +43,11 @@ class EventRelatedPluginForm(forms.ModelForm):
         queryset=Person.objects.all(),
         required=False,
         widget=FilteredSelectMultiple('Related hosts', False)
+    )
+    related_locations = forms.ModelMultipleChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        widget=FilteredSelectMultiple('Related locations', False)
     )
 
     class Meta:
