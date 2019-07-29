@@ -107,7 +107,7 @@ class EventRelatedPlugin(AdjustableCacheMixin, CMSPluginBase):
         if related_services:
             qs = qs.filter(services__in=related_services.all())
         if related_locations:
-            qs = qs.filter(services__in=related_locations.all())
+            qs = qs.filter(locations__in=related_locations.all())
         if instance.exclude_current_item:
             current_event = self.get_event(request)
             if current_event is not None:
