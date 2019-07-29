@@ -64,7 +64,7 @@ class EventRelatedPlugin(AdjustableCacheMixin, CMSPluginBase):
         'exclude_current_item',
         'more_button_is_shown',
         'more_button_text',
-        'more_button_link'
+        'more_button_link',
         'related_types',
         'related_categories',
         'related_services',
