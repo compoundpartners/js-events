@@ -28,6 +28,11 @@ ADD_FILTERED_CATEGORIES = getattr(
     'EVENTS_ADD_FILTERED_CATEGORIES',
     [],
 )
+DEFAULT_FILTERS = getattr(
+    settings,
+    'EVENTS_DEFAULT_FILTERS',
+    {},
+)
 ADDITIONAL_EXCLUDE = getattr(
     settings,
     'EVENTS_ADDITIONAL_EXCLUDE',

@@ -32,6 +32,7 @@ from aldryn_newsblog.utils import add_prefix_to_path
 from .cms_appconfig import EventsConfig
 from .models import Event, Speaker
 from .filters import EventFilters
+from .constants import DEFAULT_FILTERS
 
 
 class TemplatePrefixMixin(object):
@@ -238,7 +239,7 @@ class EventListBase(AppConfigMixin, AppHookCheckMixin, TemplatePrefixMixin,
 
     def get(self, request, *args, **kwargs):
         self.edit_mode = (request.toolbar and request.toolbar.edit_mode)
-        self.filterset = EventFilters(self.request.GET, queryset=self.get_queryset())
+        self.filterset = EventFilters(self.request.GET or DEFAULT_FILTERS, queryset=self.get_queryset())
         if not self.filterset.is_bound or self.filterset.is_valid() or not self.get_strict():
             self.object_list = self.filterset.qs
         else:
