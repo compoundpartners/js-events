@@ -97,7 +97,14 @@ class EventRelatedPlugin(AdjustableCacheMixin, CMSPluginBase):
         related_services = instance.related_services.all()
         related_locations = instance.related_locations.all()
 
-        qs = models.Event.objects.published().distinct()
+        qs = models.Event.objects
+        if instance.time_period == 'future':
+            qs = qs.upcoming()
+        elif instance.time_period == 'past':
+            qs = qs.past()
+        else:
+            qs = qs.published()
+        qs = qs.distinct()
         if related_types.exists():
             qs = qs.filter(app_config__in=related_types.all())
         if related_hosts:
@@ -114,10 +121,6 @@ class EventRelatedPlugin(AdjustableCacheMixin, CMSPluginBase):
                 qs = qs.exclude(id=current_event.id)
         if instance.featured:
             qs = qs.filter(is_featured=True)
-        if instance.time_period == 'future':
-            qs = qs.filter(event_start__gt=now())
-        elif instance.time_period == 'past':
-            qs = qs.filter(event_start__lte=now())
 
         if instance.layout == 'filter':
             f = filters.EventFilters(request.GET, queryset=qs)

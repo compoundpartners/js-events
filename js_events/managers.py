@@ -40,6 +40,12 @@ class RelatedManager(ManagerMixin, TranslatableManager):
     def published(self):
         return self.get_queryset().published()
 
+    def upcoming(self):
+        return self.get_queryset().published().filter(event_start__gte=now()).order_by('event_start')
+
+    def past(self):
+        return self.get_queryset().published().filter(event_start__lt=now()).order_by('event_start')
+
     def get_months(self, request, namespace):
         """
         Get months and years with Events count for given request and namespace
