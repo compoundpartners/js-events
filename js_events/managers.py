@@ -44,7 +44,7 @@ class RelatedManager(ManagerMixin, TranslatableManager):
         return self.get_queryset().published().filter(event_start__gte=now()).order_by('event_start')
 
     def past(self):
-        return self.get_queryset().published().filter(event_start__lt=now()).order_by('event_start')
+        return self.get_queryset().published().filter(event_start__lt=now()).order_by('-event_start')
 
     def get_months(self, request, namespace):
         """
