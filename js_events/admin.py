@@ -140,6 +140,7 @@ class EventAdmin(
                 'lead_in',
                 'featured_image',
                 'location',
+                'display_location',
                 ('latitude', 'longitude'),
                 'host',
                 'host_2',
