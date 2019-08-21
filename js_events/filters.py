@@ -28,7 +28,10 @@ class DateFilter(django_filters.ChoiceFilter):
     def filter(self, qs, value):
         if value == 'past':
             self.lookup_expr = 'lte'
-        value = now()
+            value = now()
+        elif value == 'upcoming':
+            self.lookup_expr = 'gt'
+            value = now()
         return super(DateFilter, self).filter(qs, value)
 
 
@@ -44,7 +47,7 @@ class SearchFilter(django_filters.Filter):
 
 
 class EventFilters(django_filters.FilterSet):
-    date = DateFilter('event_start', 'gt')
+    date = DateFilter('event_start')
     q = django_filters.CharFilter('translations__title', 'icontains', label='Search the directory')
     service = django_filters.ModelChoiceFilter('services', label='service', queryset=Service.objects.published().exclude(**ADDITIONAL_EXCLUDE.get('service', {})).order_by('translations__title'))
     category = django_filters.ModelChoiceFilter('categories', label='category', queryset=Category.objects.exclude(**ADDITIONAL_EXCLUDE.get('category', {})).order_by('translations__name'))
@@ -54,7 +57,7 @@ class EventFilters(django_filters.FilterSet):
 
     class Meta:
         model = models.Event
-        fields = ['q', 'service', 'category', 'section', 'location']
+        fields = ['date', 'q', 'service', 'category', 'section', 'location']
 
     def __init__(self, values, *args, **kwargs):
         super(EventFilters, self).__init__(values, *args, **kwargs)
