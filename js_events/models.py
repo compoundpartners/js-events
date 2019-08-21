@@ -126,6 +126,8 @@ class Event(TranslatedAutoSlugifyMixin,
         blank=True, null=True)
     registration_content = PlaceholderField('Hide After Happened',
                                related_name='events_event_registration_content')
+    sidebar = PlaceholderField('Event Sidebar',
+                               related_name='events_event_sidebar')
     registration_link = models.CharField(max_length=255,
         verbose_name=_('Registration link'),
         blank=True, default='',
