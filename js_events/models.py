@@ -494,7 +494,7 @@ def update_search_data(sender, instance, **kwargs):
         placeholder = (getattr(instance, '_placeholder_cache', None) or
                        instance.placeholder)
         if hasattr(placeholder, '_attached_model_cache'):
-            if placeholder._attached_model_cache == Event:
+            if placeholder._attached_model_cache == Event and placeholder.slot == 'content':
                 event = placeholder._attached_model_cache.objects.language(
                     instance.language).get(content=placeholder.pk)
                 event.search_data = event.get_search_data(instance.language)
