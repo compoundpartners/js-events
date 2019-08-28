@@ -153,6 +153,12 @@ class EventDetail(AppConfigMixin, AppHookCheckMixin, PreviewModeMixin,
         else:
             raise Http404('This is not the canonical uri of this object.')
 
+    def post(self, request, *args, **kwargs):
+        if self.config.allow_post:
+            return super(EventDetail, self).get(request, *args, **kwargs)
+        else:
+            return super(EventDetail, self).http_method_not_allowed(request, *args, **kwargs)
+
     def get_object(self, queryset=None):
         """
         Supports ALL of the types of permalinks that we've defined in urls.py.
