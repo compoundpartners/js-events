@@ -319,6 +319,15 @@ class Event(TranslatedAutoSlugifyMixin,
     def __str__(self):
         return self.safe_translation_getter('title', any_language=True)
 
+    def related_events(self):
+        return Event.objects.published().filter(app_config=self.app_config).order_by('-event_start')
+
+    def related_upcoming_events(self):
+        return Event.objects.past().filter(app_config=self.app_config).order_by('event_start')
+
+    def related_past_events(self):
+        return Event.objects.upcoming().filter(app_config=self.app_config).order_by('-event_start')
+
 
 @python_2_unicode_compatible
 class Speaker(models.Model):

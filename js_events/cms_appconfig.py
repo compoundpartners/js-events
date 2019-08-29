@@ -8,10 +8,13 @@ from app_data import AppDataForm
 from cms.models.fields import PlaceholderField
 from django import forms
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import override, ugettext_lazy as _
+from cms.utils.i18n import get_current_language
 from parler.models import TranslatableModel, TranslatedFields
+
 
 PERMALINK_CHOICES = (
     ('s', _('the-eagle-has-landed/', )),
@@ -108,6 +111,12 @@ class EventsConfig(TranslatableModel, AppHookConfig):
 
     def __str__(self):
         return self.safe_translation_getter('app_title')
+
+    def get_absolute_url(self, language=None):
+        if not language:
+            language = get_current_language()
+        with override(language):
+            return reverse('{0}:event-list'.format(self.namespace))
 
 
 class EventsConfigForm(AppDataForm):
