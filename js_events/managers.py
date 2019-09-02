@@ -25,6 +25,9 @@ class EventQuerySet(QuerySetMixin, TranslatableQuerySet):
         """
         return self.filter(is_published=True, publishing_date__lte=now())
 
+    def with_image(self):
+        return self.filter(featured_image__isnull=False)
+
 
 class SpeakerManager(models.Manager):
 
@@ -39,6 +42,9 @@ class RelatedManager(ManagerMixin, TranslatableManager):
 
     def published(self):
         return self.get_queryset().published()
+
+    def with_image(self):
+        return self.get_queryset().published().filter(featured_image__isnull=False)
 
     def upcoming(self):
         return self.get_queryset().published().filter(event_start__gte=now()).order_by('event_start')

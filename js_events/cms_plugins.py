@@ -127,7 +127,9 @@ class EventRelatedPlugin(AdjustableCacheMixin, CMSPluginBase):
             context['filter'] = f
             qs = f.qs
 
+        context['related_events_all'] = qs
         context['related_events'] = qs[:int(instance.number_of_items)]
+        context['number_of_items'] = str(instance.number_of_items)
         return context
 
     def get_render_template(self, context, instance, placeholder):
