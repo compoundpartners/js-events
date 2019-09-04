@@ -195,6 +195,11 @@ class EventAdmin(
             kwargs['widget'] = SortedFilteredSelectMultiple(attrs={'verbose_name': 'company', 'verbose_name_plural': 'companies'})
         return super(EventAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
 
+    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
+        if db_field.name == 'app_config':
+            kwargs["queryset"] = models.EventsConfig.objects.exclude(namespace=models.EventsConfig.default_namespace)
+        return super(EventAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
         if IS_THERE_COMPANIES:

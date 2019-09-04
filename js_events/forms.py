@@ -25,7 +25,7 @@ class EventRelatedPluginForm(forms.ModelForm):
 
     related_types = forms.ModelMultipleChoiceField(
         label='Related sections',
-        queryset=EventsConfig.objects.all(),
+        queryset=EventsConfig.objects.exclude(namespace=EventsConfig.default_namespace),
         required=False,
         widget=FilteredSelectMultiple('Related sections', False)
     )

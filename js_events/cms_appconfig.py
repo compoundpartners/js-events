@@ -118,6 +118,9 @@ class EventsConfig(TranslatableModel, AppHookConfig):
         with override(language):
             return reverse('{0}:event-list'.format(self.namespace))
 
+    default_namespace = 'all-events'
+    default_app_title = 'All events'
+
 
 class EventsConfigForm(AppDataForm):
     default_published = forms.BooleanField(

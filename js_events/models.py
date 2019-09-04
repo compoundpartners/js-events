@@ -274,7 +274,7 @@ class Event(TranslatedAutoSlugifyMixin,
         if self.app_config and self.app_config.namespace:
             namespace = '{0}:'.format(self.app_config.namespace)
         else:
-            namespace = ''
+            namespace = EventsConfig.default_namespace
 
         with override(language):
             return reverse('{0}event-detail'.format(namespace), kwargs=kwargs)

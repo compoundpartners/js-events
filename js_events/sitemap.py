@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from aldryn_translation_tools.sitemaps import I18NSitemap
 
-from .models import Event
+from .models import Event, EventsConfig
 from .constants import SITEMAP_CHANGEFREQ, SITEMAP_PRIORITY
 
 
@@ -15,6 +15,8 @@ class EventsSitemap(I18NSitemap):
 
     def __init__(self, *args, **kwargs):
         self.namespace = kwargs.pop('namespace', None)
+        if self.namespace == EventsConfig.default_namespace:
+            self.namespace = None
         self.sitemap_type = kwargs.pop('type', 'xml')
         super(EventsSitemap, self).__init__(*args, **kwargs)
 
