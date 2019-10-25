@@ -351,6 +351,12 @@ class Speaker(models.Model):
         default='', help_text=_("Provide this speaker's company."))
     link = models.URLField(
         verbose_name=_('link'), null=True, blank=True)
+    link_text = models.CharField(
+        _('link text'), max_length=255, blank=True, default='')
+    open_in_new_window = models.BooleanField(
+        default=False,
+        verbose_name=_('Open link in new window')
+    )
 
     description = HTMLField(_('description'), blank=True, default='')
     function = models.CharField(_('role'), max_length=255, blank=True, default='')
