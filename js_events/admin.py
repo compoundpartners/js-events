@@ -12,7 +12,10 @@ from django.db.models import SlugField
 from django.forms import widgets
 from parler.admin import TranslatableAdmin
 from parler.forms import TranslatableModelForm
-from sortedm2m_filter_horizontal_widget.forms import SortedFilteredSelectMultiple
+try:
+    from sortedm2m_filter_horizontal_widget.forms import SortedFilteredSelectMultiple
+except:
+    SortedFilteredSelectMultiple = FilteredSelectMultiple
 
 from . import models
 
@@ -188,7 +191,7 @@ class EventAdmin(
 
     def formfield_for_manytomany(self, db_field, request=None, **kwargs):
         if db_field.name == 'services':
-            kwargs['widget'] = SortedFilteredSelectMultiple(attrs={'verbose_name': 'service', 'verbose_name_plural': 'services'})
+            kwargs['widget'] = SortedFilteredSelectMultiple(attrs={'verbose_name': 'service'})
         if db_field.name == 'locations':
             kwargs['widget'] = SortedFilteredSelectMultiple(attrs={'verbose_name': 'location'})
         if db_field.name == 'companies':
@@ -231,6 +234,5 @@ class SpeakerAdmin(admin.ModelAdmin):
     #formfield_overrides = {
         #SlugField: {'widget': widgets.HiddenInput},
     #}
-
 
 admin.site.register(models.Speaker, SpeakerAdmin)

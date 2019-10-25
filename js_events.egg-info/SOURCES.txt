@@ -18,6 +18,7 @@ js_events/forms.py
 js_events/managers.py
 js_events/models.py
 js_events/search_indexes.py
+js_events/sitemap.py
 js_events/urls.py
 js_events/views.py
 js_events.egg-info/PKG-INFO
@@ -44,6 +45,16 @@ js_events/migrations/0015_speaker_vcard_enabled.py
 js_events/migrations/0016_auto_20190607_1122.py
 js_events/migrations/0017_auto_20190607_1128.py
 js_events/migrations/0018_event_link_text.py
+js_events/migrations/0019_auto_20190709_2305.py
+js_events/migrations/0020_auto_20190712_1437.py
+js_events/migrations/0021_auto_20190729_1503.py
+js_events/migrations/0022_eventrelatedplugin_related_locations.py
+js_events/migrations/0023_eventtranslation_display_location.py
+js_events/migrations/0024_event_sidebar.py
+js_events/migrations/0025_create_placeholders.py
+js_events/migrations/0026_eventsconfig_allow_post.py
+js_events/migrations/0027_auto_20191024_1252.py
+js_events/migrations/0028_auto_20191025_1102.py
 js_events/migrations/__init__.py
 js_events/templates/js_events/base.html
 js_events/templates/js_events/event_detail.html
@@ -60,3 +71,4 @@ js_events/templates/js_events/plugins/related_events__events.html
 js_events/templates/js_events/plugins/related_events__filter.html
 js_events/templates/js_events/plugins/related_events__hero.html
 js_events/templates/js_events/plugins/related_events__rows.html
+js_events/templates/js_events/plugins/related_speakers.html

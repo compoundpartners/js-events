@@ -3,6 +3,17 @@
 from django.conf import settings
 from django.utils.text import slugify
 
+def get_template_choices(templates):
+    values = list(templates).copy()
+    # set first template as default
+    if len(values):
+        values[0] = ''
+    return list(zip(map(lambda s: slugify(s).replace('-', '_'), values), templates))
+
+def get_template_title(choices, template):
+    default = choices[0][1] if len(choices) and (choices[0]) == 2 else 'Default'
+    return dict(choices).get(template, default)
+
 UPDATE_SEARCH_DATA_ON_SAVE = getattr(
     settings,
     'EVENTS_UPDATE_SEARCH_DATA_ON_SAVE',
@@ -41,10 +52,10 @@ ADDITIONAL_EXCLUDE = getattr(
 EVENTS_RELATED_LAYOUTS = getattr(
     settings,
     'EVENTS_RELATED_LAYOUTS',
-    (),
+    [],
 )
 if EVENTS_RELATED_LAYOUTS:
-    RELATED_LAYOUTS = list(zip(map(lambda s: slugify(s).replace('-', '_'), EVENTS_RELATED_LAYOUTS), EVENTS_RELATED_LAYOUTS))
+    RELATED_LAYOUTS = get_template_choices(EVENTS_RELATED_LAYOUTS)
 else:
     RELATED_LAYOUTS = (
         ('cols', 'Columns'),
@@ -53,6 +64,13 @@ else:
         ('events', 'Events'),
         ('filter', 'Filter'),
     )
+
+RELATED_SPEAKERS_LAYOUTS = getattr(
+    settings,
+    'EVENTS_RELATED_SPEAKERS_LAYOUTS',
+    ['Default'],
+)
+RELATED_SPEAKERS_LAYOUTS = get_template_choices(RELATED_SPEAKERS_LAYOUTS)
 
 SITEMAP_CHANGEFREQ = getattr(
     settings,

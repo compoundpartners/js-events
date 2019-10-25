@@ -5,10 +5,14 @@ from __future__ import unicode_literals
 from distutils.version import LooseVersion
 from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
+from django.template import TemplateDoesNotExist
+from django.template.loader import select_template
 
 from cms import __version__ as cms_version
 from cms.plugin_base import CMSPluginBase
 from cms.plugin_pool import plugin_pool
+from django.contrib.admin.widgets import FilteredSelectMultiple
+
 from . import models, forms, filters
 from .constants import RELATED_LAYOUTS
 
@@ -134,3 +138,47 @@ class EventRelatedPlugin(AdjustableCacheMixin, CMSPluginBase):
 
     def get_render_template(self, context, instance, placeholder):
         return self.TEMPLATE_NAME % instance.layout
+
+
+@plugin_pool.register_plugin
+class RelatedSpeakersPlugin(CMSPluginBase):
+    TEMPLATE_NAME = 'js_events/plugins/related_speakers__%s.html'
+    module = 'JumpSuite Events'
+    render_template = 'js_events/plugins/related_speakers.html'
+    name = _('Related Speakers')
+    model = models.RelatedSpeakersPlugin
+    form = forms.RelatedSpeakersPluginForm
+
+    fields = [
+        'title',
+        'icon',
+        'image',
+        'number_of_people',
+        'layout',
+        'speakers',
+    ]
+
+    def render(self, context, instance, placeholder):
+        request = context.get('request')
+        context['instance'] = instance
+        context['title'] = instance.title
+        context['icon'] = instance.icon
+        context['image'] = instance.image
+
+        qs = instance.speakers.all()
+
+        context['speakers'] = qs[:int(instance.number_of_people)]
+        context['all_speakers'] = qs
+
+        return context
+
+    def get_render_template(self, context, instance, placeholder):
+        layout = instance.layout
+        if layout:
+            template = self.TEMPLATE_NAME % layout
+            try:
+                select_template([template])
+                return template
+            except TemplateDoesNotExist:
+                pass
+        return self.render_template

@@ -2,12 +2,17 @@
 from __future__ import unicode_literals
 from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
+try:
+    from sortedm2m_filter_horizontal_widget.forms import SortedFilteredSelectMultiple
+except:
+    SortedFilteredSelectMultiple = FilteredSelectMultiple
 from aldryn_categories.models import Category
 from aldryn_people.models import Person
 from js_services.models import Service
 from js_locations.models import Location
+from . import models
 from .cms_appconfig import EventsConfig
-from .constants import RELATED_LAYOUTS
+from .constants import RELATED_LAYOUTS, RELATED_SPEAKERS_LAYOUTS
 
 
 
@@ -52,3 +57,12 @@ class EventRelatedPluginForm(forms.ModelForm):
 
     class Meta:
         exclude = ['cache_duration']
+
+class RelatedSpeakersPluginForm(forms.ModelForm):
+
+    layout = forms.ChoiceField(RELATED_SPEAKERS_LAYOUTS, required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['speakers'].widget = SortedFilteredSelectMultiple(attrs={'verbose_name': 'speaker'})
+        self.fields['speakers'].queryset = models.Speaker.objects.all()

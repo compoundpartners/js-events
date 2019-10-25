@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: js-events
-Version: 0.1.13
+Version: 0.2.21
 Summary: Jumpsuite Events
 ====
 Addon description
@@ -11,6 +11,5 @@ Home-page: UNKNOWN
 Author: Compound Partners Ltd
 Author-email: hello@compoundpartners.co.uk
 License: UNKNOWN
-Description-Content-Type: UNKNOWN
 Description: UNKNOWN
 Platform: OS Independent
