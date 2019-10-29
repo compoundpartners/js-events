@@ -239,6 +239,12 @@ class EventDetail(AppConfigMixin, AppHookCheckMixin, PreviewModeMixin,
         else:
             return None
 
+    def get_template_names(self):
+        template_names = super(DetailView, self).get_template_names()
+        if self.object and self.object.template:
+            template_names = ['js_events/' + self.object.template] + template_names
+        return self.prefix_template_names(template_names)
+
 
 class EventListBase(AppConfigMixin, AppHookCheckMixin, TemplatePrefixMixin,
                     PreviewModeMixin, ViewUrlMixin, ListView):

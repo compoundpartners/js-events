@@ -49,6 +49,13 @@ ADDITIONAL_EXCLUDE = getattr(
     'EVENTS_ADDITIONAL_EXCLUDE',
     {},
 )
+
+EVENT_TEMPLATES = [['', 'Default']] + list(getattr(
+    settings,
+    'EVENT_TEMPLATES',
+    [],
+))
+
 EVENTS_RELATED_LAYOUTS = getattr(
     settings,
     'EVENTS_RELATED_LAYOUTS',

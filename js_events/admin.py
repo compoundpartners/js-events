@@ -24,6 +24,7 @@ from .constants import (
     EVENTS_ENABLE_PRICE,
     EVENTS_ENABLE_CPD,
     IS_THERE_COMPANIES,
+    EVENT_TEMPLATES,
 )
 if IS_THERE_COMPANIES:
     from js_companies.models import Company
@@ -65,6 +66,7 @@ make_not_featured.short_description = _(
 
 class EventAdminForm(TranslatableModelForm):
     companies = forms.CharField()
+    template = forms.ChoiceField(EVENT_TEMPLATES, required=False)
 
     class Meta:
         model = models.Event
@@ -134,6 +136,7 @@ class EventAdmin(
         )
     advanced_fields += (
         'app_config',
+        'template',
     )
 
     fieldsets = (
@@ -190,12 +193,8 @@ class EventAdmin(
     app_config_selection_desc = ''
 
     def formfield_for_manytomany(self, db_field, request=None, **kwargs):
-        if db_field.name == 'services':
+        if db_field.name in ['services', 'locations']:
             kwargs['widget'] = SortedFilteredSelectMultiple(attrs={'verbose_name': 'service'})
-        if db_field.name == 'locations':
-            kwargs['widget'] = SortedFilteredSelectMultiple(attrs={'verbose_name': 'location'})
-        if db_field.name == 'companies':
-            kwargs['widget'] = SortedFilteredSelectMultiple(attrs={'verbose_name': 'company', 'verbose_name_plural': 'companies'})
         return super(EventAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):

@@ -25,7 +25,7 @@ from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import override, ugettext
 from djangocms_text_ckeditor.fields import HTMLField
-from aldryn_common.admin_fields.sortedm2m import SortedM2MModelField
+from sortedm2m.fields import SortedManyToManyField
 from filer.fields.image import FilerImageField
 from djangocms_icon.fields import Icon
 from parler.models import TranslatableModel, TranslatedFields
@@ -158,6 +158,10 @@ class Event(TranslatedAutoSlugifyMixin,
         verbose_name=_('Section'),
         help_text='',
     )
+    template = models.CharField(max_length=255,
+        verbose_name=_('Event template'),
+        blank=True, default='',
+    )
     categories = CategoryManyToManyField(Category,
                                          verbose_name=_('categories'),
                                          blank=True)
@@ -190,9 +194,9 @@ class Event(TranslatedAutoSlugifyMixin,
     # which in the end causes to add reversed releted-to entry as well:
     #
     # https://github.com/django/django/blob/1.8.4/django/db/models/fields/related.py#L977
-    services = SortedM2MModelField('js_services.Service',
+    services = SortedManyToManyField('js_services.Service',
         verbose_name=_('services'), blank=True)
-    locations = SortedM2MModelField('js_locations.location',
+    locations = SortedManyToManyField('js_locations.location',
         verbose_name=_('locations'), blank=True)
 
     objects = RelatedManager()
@@ -477,11 +481,11 @@ class EventRelatedPlugin(PluginEditModeMixin, AdjustableCacheModelMixin,
     time_period = models.CharField(max_length=30, verbose_name=_('Time Period'))
     featured = models.BooleanField(blank=True, default=False)
     exclude_current_item = models.BooleanField(blank=True, default=False, verbose_name=_('Exclude current event'))
-    related_types = SortedM2MModelField(EventsConfig, verbose_name=_('related sections'), blank=True, symmetrical=False)
-    related_categories = SortedM2MModelField(Category, verbose_name=_('related categories'), blank=True, symmetrical=False)
-    related_services = SortedM2MModelField('js_services.Service', verbose_name=_('related services'), blank=True, symmetrical=False)
-    related_hosts = SortedM2MModelField(Person, verbose_name=_('related hosts'), blank=True, symmetrical=False)
-    related_locations = SortedM2MModelField('js_locations.location', verbose_name=_('related locations'), blank=True)
+    related_types = SortedManyToManyField(EventsConfig, verbose_name=_('related sections'), blank=True, symmetrical=False)
+    related_categories = SortedManyToManyField(Category, verbose_name=_('related categories'), blank=True, symmetrical=False)
+    related_services = SortedManyToManyField('js_services.Service', verbose_name=_('related services'), blank=True, symmetrical=False)
+    related_hosts = SortedManyToManyField(Person, verbose_name=_('related hosts'), blank=True, symmetrical=False)
+    related_locations = SortedManyToManyField('js_locations.location', verbose_name=_('related locations'), blank=True)
 
     more_button_is_shown = models.BooleanField(blank=True, default=False, verbose_name=_('Show “See More Button”'))
     more_button_text = models.CharField(max_length=255, blank=True, verbose_name=_('See More Button Text'))
@@ -511,7 +515,7 @@ class RelatedSpeakersPlugin(CMSPlugin):
     image = FilerImageField(null=True, blank=True, related_name="related_speakers")
     number_of_people = models.PositiveSmallIntegerField(verbose_name=_('Number of people'))
     layout = models.CharField(max_length=30, verbose_name=_('layout'), blank=True, default='', choices=[])
-    speakers = SortedM2MModelField(Speaker, verbose_name=_('speakers'), blank=True, symmetrical=False)
+    speakers = SortedManyToManyField(Speaker, verbose_name=_('speakers'), blank=True, symmetrical=False)
 
     def copy_relations(self, oldinstance):
         self.speakers = oldinstance.speakers.all()
