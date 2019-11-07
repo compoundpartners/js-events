@@ -1,6 +1,7 @@
 LICENSE
 MANIFEST.in
 README.rst
+setup.cfg
 setup.py
 js_events/__init__.py
 js_events/admin.py
@@ -55,6 +56,7 @@ js_events/migrations/0025_create_placeholders.py
 js_events/migrations/0026_eventsconfig_allow_post.py
 js_events/migrations/0027_auto_20191024_1252.py
 js_events/migrations/0028_auto_20191025_1102.py
+js_events/migrations/0029_event_template.py
 js_events/migrations/__init__.py
 js_events/templates/js_events/base.html
 js_events/templates/js_events/event_detail.html

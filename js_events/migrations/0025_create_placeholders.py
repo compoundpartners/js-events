@@ -8,19 +8,20 @@ import django.db.models.deletion
 from django.apps import apps as django_apps
 
 def forward(apps, schema_editor):
-    Event = django_apps.get_model('js_events.Event')
-    from cms.models import Placeholder
+    #Event = django_apps.get_model('js_events.Event')
+    #from cms.models import Placeholder
 
-    placeholder_names = ['content', 'registration_content', 'sidebar']
-    for event in Event.objects.all():
-        for placeholder_name in placeholder_names:
-            placeholder_id_name = '{0}_id'.format(placeholder_name)
-            placeholder_id = getattr(event, placeholder_id_name, None)
-            if placeholder_id is not None:
-                continue
-            placeholder_new = Placeholder.objects.create(slot=placeholder_name)
-            setattr(event, placeholder_id_name, placeholder_new.pk)
-        event.save()
+    #placeholder_names = ['content', 'registration_content', 'sidebar']
+    #for event in Event.objects.all():
+        #for placeholder_name in placeholder_names:
+            #placeholder_id_name = '{0}_id'.format(placeholder_name)
+            #placeholder_id = getattr(event, placeholder_id_name, None)
+            #if placeholder_id is not None:
+                #continue
+            #placeholder_new = Placeholder.objects.create(slot=placeholder_name)
+            #setattr(event, placeholder_id_name, placeholder_new.pk)
+        #event.save()
+    pass
 
 def backwards(apps, schema_editor):
     pass
