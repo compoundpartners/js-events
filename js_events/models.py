@@ -366,7 +366,9 @@ class Speaker(models.Model):
     function = models.CharField(_('role'), max_length=255, blank=True, default='')
     is_published = models.BooleanField(
         verbose_name=_('show on website'), default=True)
-    visual = FilerImageField(
+    visual = FilerImageField(verbose_name=_("image 1"), related_name='image_1',
+        null=True, blank=True, default=None, on_delete=models.SET_NULL)
+    visual2 = FilerImageField(verbose_name=_("image 2"), related_name='image_2',
         null=True, blank=True, default=None, on_delete=models.SET_NULL)
     email = models.EmailField(
         verbose_name=_("email"), blank=True, default='')
