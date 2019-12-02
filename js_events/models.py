@@ -487,7 +487,7 @@ class EventRelatedPlugin(PluginEditModeMixin, AdjustableCacheModelMixin,
     icon = Icon(blank=False, default='')
     image = FilerImageField(null=True, blank=True, related_name="related_events_title_image")
     number_of_items = models.PositiveSmallIntegerField(verbose_name=_('Number of events'))
-    layout = models.CharField(max_length=30, verbose_name=_('layout'))
+    layout = models.CharField(max_length=30, verbose_name=_('layout'), blank=True, default='', choices=[])
     time_period = models.CharField(max_length=30, verbose_name=_('Time Period'))
     featured = models.BooleanField(blank=True, default=False)
     exclude_current_item = models.BooleanField(blank=True, default=False, verbose_name=_('Exclude current event'))
