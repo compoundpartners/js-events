@@ -235,6 +235,14 @@ class Event(TranslatedAutoSlugifyMixin,
         return (self.is_published and self.publishing_date > now())
 
     @property
+    def upcoming(self):
+        return self.event_start > now()
+
+    @property
+    def past(self):
+        return self.event_start > now()
+
+    @property
     def show_registration_content(self):
         return (self.registration_until or self.event_start) > now()
 
