@@ -62,7 +62,7 @@ EVENTS_RELATED_LAYOUTS = getattr(
     [],
 )
 if EVENTS_RELATED_LAYOUTS:
-    RELATED_LAYOUTS = get_template_choices(EVENTS_RELATED_LAYOUTS)
+    RELATED_LAYOUTS = list(zip(map(lambda s: slugify(s).replace('-', '_'), EVENTS_RELATED_LAYOUTS), EVENTS_RELATED_LAYOUTS))
 else:
     RELATED_LAYOUTS = (
         ('cols', 'Columns'),

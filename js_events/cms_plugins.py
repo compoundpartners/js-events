@@ -137,7 +137,15 @@ class EventRelatedPlugin(AdjustableCacheMixin, CMSPluginBase):
         return context
 
     def get_render_template(self, context, instance, placeholder):
-        return self.TEMPLATE_NAME % instance.layout
+        layout = instance.layout
+        if layout:
+            template = self.TEMPLATE_NAME % layout
+            try:
+                select_template([template])
+                return template
+            except TemplateDoesNotExist:
+                pass
+        return self.render_template
 
 
 @plugin_pool.register_plugin

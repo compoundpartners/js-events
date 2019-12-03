@@ -25,7 +25,7 @@ TIME_PERIODS = [
 
 class EventRelatedPluginForm(forms.ModelForm):
 
-    layout = forms.ChoiceField(RELATED_LAYOUTS)
+    layout = forms.ChoiceField(RELATED_LAYOUTS, required=False)
     time_period = forms.ChoiceField(TIME_PERIODS)
 
     related_types = forms.ModelMultipleChoiceField(
