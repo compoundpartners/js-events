@@ -18,6 +18,12 @@ from .constants import (
 if IS_THERE_COMPANIES:
     from js_companies.models import Company
 
+try:
+    from custom.js_events.filters import CustomFilterMixin
+except:
+    class CustomFilterMixin(object):
+        pass
+
 TIME_PERIODS = [
     ('upcoming', 'Upcoming'),
     ('past', 'Previous'),
@@ -46,7 +52,7 @@ class SearchFilter(django_filters.Filter):
         return qs
 
 
-class EventFilters(django_filters.FilterSet):
+class EventFilters(CustomFilterMixin, django_filters.FilterSet):
     date = DateFilter('event_start')
     q = django_filters.CharFilter('translations__title', 'icontains', label='Search the directory')
     service = django_filters.ModelChoiceFilter('services', label='service', queryset=Service.objects.published().exclude(**ADDITIONAL_EXCLUDE.get('service', {})).order_by('translations__title'))
