@@ -101,6 +101,12 @@ class EventsConfig(TranslatableModel, AppHookConfig):
         default=True,
         help_text=_('Include events in search indexes?'),
     )
+    show_in_listing = models.BooleanField(
+        _('Include in Listings?'),
+        default=True,
+        help_text=_('Include articles in listing pages and admin selects?'),
+    )
+
 
     def get_app_title(self):
         return getattr(self, 'app_title', _('untitled'))

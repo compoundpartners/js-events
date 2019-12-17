@@ -58,7 +58,7 @@ class EventFilters(CustomFilterMixin, django_filters.FilterSet):
     service = django_filters.ModelChoiceFilter('services', label='service', queryset=Service.objects.published().exclude(**ADDITIONAL_EXCLUDE.get('service', {})).order_by('translations__title'))
     category = django_filters.ModelChoiceFilter('categories', label='category', queryset=Category.objects.exclude(**ADDITIONAL_EXCLUDE.get('category', {})).order_by('translations__name'))
     location = django_filters.ModelChoiceFilter('locations', label='location', queryset=Location.objects.exclude(**ADDITIONAL_EXCLUDE.get('location', {})).order_by('translations__name'))
-    section = django_filters.ModelChoiceFilter('app_config', label='section', queryset=EventsConfig.objects.exclude(namespace=EventsConfig.default_namespace, **ADDITIONAL_EXCLUDE.get('section', {})).order_by('translations__app_title'))
+    section = django_filters.ModelChoiceFilter('app_config', label='section', queryset=EventsConfig.objects.filter(show_in_listing=True).exclude(namespace=EventsConfig.default_namespace, **ADDITIONAL_EXCLUDE.get('section', {})).order_by('translations__app_title'))
     o = django_filters.OrderingFilter(fields=(('event_start', 'date'),))
 
     class Meta:

@@ -32,7 +32,7 @@ from parler.models import TranslatableModel, TranslatedFields
 from aldryn_newsblog.utils import get_plugin_index_data, get_request, strip_tags
 from aldryn_people.vcard import Vcard
 from .cms_appconfig import EventsConfig
-from .managers import RelatedManager, SpeakerManager
+from .managers import RelatedManager, SpeakerManager, AllManager, SearchManager
 from .constants import get_template_title, RELATED_SPEAKERS_LAYOUTS
 
 try:
@@ -200,6 +200,8 @@ class Event(TranslatedAutoSlugifyMixin,
         verbose_name=_('locations'), blank=True)
 
     objects = RelatedManager()
+    all_objects = AllManager()
+    search_objects = SearchManager()
 
     class Meta:
         ordering = ['-event_start']

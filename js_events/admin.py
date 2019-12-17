@@ -94,6 +94,9 @@ class EventAdmin(
     ModelAppHookConfig,
     TranslatableAdmin
 ):
+    def get_queryset(self, request):
+        return self.model.all_objects
+
     form = EventAdminForm
     list_display = ('title_view', 'app_config', 'event_start', 'is_featured',
                     'is_published')
@@ -220,7 +223,7 @@ class EventsConfigAdmin(
             'app_title', 'allow_post', 'permalink_type', 'non_permalink_handling',
             'template_prefix', 'paginate_by', 'pagination_pages_start',
             'pagination_pages_visible', 'exclude_featured',
-            'search_indexed', 'config.default_published',)
+            'search_indexed', 'show_in_listing', 'config.default_published',)
 
 
 admin.site.register(models.EventsConfig, EventsConfigAdmin)

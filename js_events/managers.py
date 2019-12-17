@@ -35,7 +35,7 @@ class SpeakerManager(models.Manager):
         return self.get_queryset().filter(is_published=True)
 
 
-class RelatedManager(ManagerMixin, TranslatableManager):
+class AllManager(ManagerMixin, TranslatableManager):
     def get_queryset(self):
         qs = EventQuerySet(self.model, using=self.db)
         return qs.select_related('featured_image')
@@ -91,3 +91,19 @@ class RelatedManager(ManagerMixin, TranslatableManager):
              'num_events': date_counter[(year, month)]}
             for year, month in dates]
         return months
+
+
+
+
+class RelatedManager(AllManager):
+    def get_queryset(self):
+        qs = EventQuerySet(self.model, using=self.db)
+        qs = qs.filter(app_config__show_in_listing=True)
+        return qs.select_related('featured_image')
+
+
+class SearchManager(AllManager):
+    def get_queryset(self):
+        qs = EventQuerySet(self.model, using=self.db)
+        qs = qs.filter(app_config__search_indexed=True)
+        return qs.select_related('featured_image')
