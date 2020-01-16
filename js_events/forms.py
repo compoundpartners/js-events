@@ -25,8 +25,8 @@ TIME_PERIODS = [
 
 class EventRelatedPluginForm(forms.ModelForm):
 
-    layout = forms.ChoiceField(RELATED_LAYOUTS, required=False)
-    time_period = forms.ChoiceField(TIME_PERIODS)
+    layout = forms.ChoiceField(choices=RELATED_LAYOUTS, required=False)
+    time_period = forms.ChoiceField(choices=TIME_PERIODS)
 
     related_types = forms.ModelMultipleChoiceField(
         label='Related sections',
@@ -60,7 +60,7 @@ class EventRelatedPluginForm(forms.ModelForm):
 
 class RelatedSpeakersPluginForm(forms.ModelForm):
 
-    layout = forms.ChoiceField(RELATED_SPEAKERS_LAYOUTS, required=False)
+    layout = forms.ChoiceField(choices=RELATED_SPEAKERS_LAYOUTS, required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

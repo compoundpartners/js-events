@@ -8,7 +8,11 @@ from app_data import AppDataForm
 from cms.models.fields import PlaceholderField
 from django import forms
 from django.conf import settings
-from django.core.urlresolvers import reverse
+try:
+    from django.core.urlresolvers import reverse
+except ImportError:
+    # Django 2.0
+    from django.urls import reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import override, ugettext_lazy as _

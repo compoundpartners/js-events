@@ -16,7 +16,11 @@ from cms.models.pluginmodel import CMSPlugin
 from cms.utils.i18n import get_current_language, get_redirect_on_fallback
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.core.urlresolvers import reverse
+try:
+    from django.core.urlresolvers import reverse
+except ImportError:
+    # Django 2.0
+    from django.urls import reverse
 from django.db import connection, models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -38,8 +42,11 @@ from .constants import get_template_title, RELATED_SPEAKERS_LAYOUTS
 try:
     from django.utils.encoding import force_unicode
 except ImportError:
-    from django.utils.encoding import force_text as force_unicode
-
+    try:
+        from django.utils.encoding import force_text as force_unicode
+    except ImportError:
+        def force_unicode(value):
+            return value.decode()
 try:
     import urlparse
 except ImportError:
@@ -118,11 +125,11 @@ class Event(TranslatedAutoSlugifyMixin,
         verbose_name=_('Event latitude'), blank=True, null=True)
     longitude = models.DecimalField(max_digits=8, decimal_places=5,
         verbose_name=_('Event longitude'), blank=True, null=True)
-    host = models.ForeignKey(Person, null=True, blank=True,
+    host = models.ForeignKey(Person, on_delete=models.SET_NULL, null=True, blank=True,
         verbose_name=_('host'))
-    host_2 = models.ForeignKey(Person, related_name='host_2', null=True, blank=True,
+    host_2 = models.ForeignKey(Person, on_delete=models.SET_NULL, related_name='host_2', null=True, blank=True,
         verbose_name=_('second host'))
-    host_3 = models.ForeignKey(Person, related_name='host_3', null=True, blank=True,
+    host_3 = models.ForeignKey(Person, on_delete=models.SET_NULL, related_name='host_3', null=True, blank=True,
         verbose_name=_('third host'))
     registration_until = models.DateTimeField(_('Allow registration until'),
         blank=True, null=True)
@@ -483,11 +490,11 @@ class EventRelatedPlugin(PluginEditModeMixin, AdjustableCacheModelMixin,
     # NOTE: This one does NOT subclass NewsBlogCMSPlugin. This is because this
     # plugin can really only be placed on the article detail view in an apphook.
     cmsplugin_ptr = models.OneToOneField(
-        CMSPlugin, related_name='+', parent_link=True)
+        CMSPlugin, on_delete=models.CASCADE, related_name='+', parent_link=True)
 
     title = models.CharField(max_length=255, blank=True, verbose_name=_('Title'))
     icon = Icon(blank=False, default='')
-    image = FilerImageField(null=True, blank=True, related_name="related_events_title_image")
+    image = FilerImageField(on_delete=models.SET_NULL, null=True, blank=True, related_name="related_events_title_image")
     number_of_items = models.PositiveSmallIntegerField(verbose_name=_('Number of events'))
     layout = models.CharField(max_length=30, verbose_name=_('layout'), blank=True, default='', choices=[])
     time_period = models.CharField(max_length=30, verbose_name=_('Time Period'))
@@ -520,11 +527,11 @@ class RelatedSpeakersPlugin(CMSPlugin):
     # NOTE: This one does NOT subclass NewsBlogCMSPlugin. This is because this
     # plugin can really only be placed on the article detail view in an apphook.
     cmsplugin_ptr = models.OneToOneField(
-        CMSPlugin, related_name='+', parent_link=True)
+        CMSPlugin, on_delete=models.CASCADE, related_name='+', parent_link=True)
 
     title = models.CharField(max_length=255, blank=True, verbose_name=_('Title'))
     icon = Icon(blank=False, default='')
-    image = FilerImageField(null=True, blank=True, related_name="related_speakers")
+    image = FilerImageField(on_delete=models.SET_NULL, null=True, blank=True, related_name="related_speakers")
     number_of_people = models.PositiveSmallIntegerField(verbose_name=_('Number of people'))
     layout = models.CharField(max_length=30, verbose_name=_('layout'), blank=True, default='', choices=[])
     speakers = SortedManyToManyField(Speaker, verbose_name=_('speakers'), blank=True, symmetrical=False)

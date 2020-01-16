@@ -4,7 +4,11 @@ from __future__ import unicode_literals
 
 from django import forms
 from django.utils.translation import ugettext_lazy as _
-from django.core.urlresolvers import reverse, NoReverseMatch
+try:
+    from django.core.urlresolvers import reverse, NoReverseMatch
+except ImportError:
+    # Django 2.0
+    from django.urls import reverse, NoReverseMatch
 
 from cms.api import add_plugin
 from cms.utils import permissions

@@ -66,7 +66,7 @@ make_not_featured.short_description = _(
 
 class EventAdminForm(TranslatableModelForm):
     companies = forms.CharField()
-    template = forms.ChoiceField(EVENT_TEMPLATES, required=False)
+    template = forms.ChoiceField(choices=EVENT_TEMPLATES, required=False)
 
     class Meta:
         model = models.Event
