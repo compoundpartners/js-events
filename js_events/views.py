@@ -60,7 +60,7 @@ class EditModeMixin(object):
 
     def dispatch(self, request, *args, **kwargs):
         self.edit_mode = (
-            self.request.toolbar and self.request.toolbar.edit_mode)
+            self.request.toolbar and self.request.toolbar.edit_mode_active)
         return super(EditModeMixin, self).dispatch(request, *args, **kwargs)
 
 
@@ -253,7 +253,7 @@ class EventListBase(AppConfigMixin, AppHookCheckMixin, TemplatePrefixMixin,
     show_header = False
 
     def get(self, request, *args, **kwargs):
-        self.edit_mode = (request.toolbar and request.toolbar.edit_mode)
+        self.edit_mode = (request.toolbar and request.toolbar.edit_mode_active)
         self.filterset = EventFilters(self.request.GET or DEFAULT_FILTERS, queryset=self.get_queryset())
         if not self.filterset.is_bound or self.filterset.is_valid() or not self.get_strict():
             self.object_list = self.filterset.qs.distinct()
@@ -326,7 +326,7 @@ class EventSearchResultsList(EventListBase):
     def get(self, request, *args, **kwargs):
         self.query = request.GET.get('q')
         self.max_events = request.GET.get('max_events', 0)
-        self.edit_mode = (request.toolbar and request.toolbar.edit_mode)
+        self.edit_mode = (request.toolbar and request.toolbar.edit_mode_active)
         return super(EventSearchResultsList, self).get(request)
 
     def get_paginate_by(self, queryset):

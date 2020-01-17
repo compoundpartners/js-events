@@ -75,7 +75,7 @@ class AllManager(ManagerMixin, TranslatableManager):
         # This is done in a naive way as Django is having tough time while
         # aggregating on date fields
         if (request and hasattr(request, 'toolbar') and
-                request.toolbar and request.toolbar.edit_mode):
+                request.toolbar and request.toolbar.edit_mode_active):
             events = self.namespace(namespace)
         else:
             events = self.published().namespace(namespace)
