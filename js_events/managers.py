@@ -38,7 +38,7 @@ class SpeakerManager(models.Manager):
 class AllManager(ManagerMixin, TranslatableManager):
     def get_queryset(self):
         qs = EventQuerySet(self.model, using=self.db)
-        return qs.select_related('featured_image')
+        return qs.select_related('featured_image')#.prefetch_related('translations')
 
     def published(self):
         return self.get_queryset().published()

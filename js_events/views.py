@@ -32,7 +32,7 @@ from aldryn_newsblog.utils import add_prefix_to_path
 from .cms_appconfig import EventsConfig
 from .models import Event, Speaker
 from .filters import EventFilters
-from .constants import DEFAULT_FILTERS
+from .constants import DEFAULT_FILTERS, GET_NEXT_EVENT, RELATED_EVENTS_COUNT
 
 
 class TemplatePrefixMixin(object):
@@ -101,10 +101,10 @@ class AppHookCheckMixin(object):
         # if your mixin contains filtering after super call - please place it
         # after this mixin.
         qs = super(AppHookCheckMixin, self).get_queryset()
-        return qs.translated(*self.valid_languages)
+        return qs#.translated(*self.valid_languages)
 
 
-class EventDetail(AppConfigMixin, AppHookCheckMixin, PreviewModeMixin,
+class EventDetail(AppConfigMixin, AppHookCheckMixin, EditModeMixin,
                     TranslatableSlugMixin, TemplatePrefixMixin, DetailView):
     model = Event
     slug_field = 'slug'
@@ -117,9 +117,7 @@ class EventDetail(AppConfigMixin, AppHookCheckMixin, PreviewModeMixin,
     def get(self, request, *args, **kwargs):
         if 'speaker_slug' in kwargs:
             speaker_slug = kwargs['speaker_slug']
-            print(speaker_slug)
             speaker = Speaker.objects.published().filter(slug=speaker_slug, vcard_enabled=True)
-            print(speaker)
             if speaker.count() != 1:
                 raise Http404
             filename = "%s.vcf" % str(speaker_slug)
@@ -145,7 +143,9 @@ class EventDetail(AppConfigMixin, AppHookCheckMixin, PreviewModeMixin,
         url = self.object.get_absolute_url()
         if (self.config.non_permalink_handling == 200 or request.path == url):
             # Continue as normal
-            return super(EventDetail, self).get(request, *args, **kwargs)
+            #return super(EventDetail, self).get(request, *args, **kwargs)
+            context = self.get_context_data(object=self.object)
+            return self.render_to_response(context)
 
         # Check to see if the URL path matches the correct absolute_url of
         # the found object
@@ -186,27 +186,30 @@ class EventDetail(AppConfigMixin, AppHookCheckMixin, PreviewModeMixin,
 
     def get_context_data(self, **kwargs):
         context = super(EventDetail, self).get_context_data(**kwargs)
-        context['prev_event'] = self.get_prev_object(
-            self.queryset, self.object)
-        context['next_event'] = self.get_next_object(
-            self.queryset, self.object)
+        if GET_NEXT_EVENT:
+            context['prev_event'] = self.get_prev_object(
+                self.queryset, self.object)
+            context['next_event'] = self.get_next_object(
+                self.queryset, self.object)
 
         event = context['event']
 
-        related_types_first = event.app_config
-        if related_types_first is not None:
-            context['related_types_first'] = related_types_first.namespace
+        if False:
+            related_types_first = event.app_config
+            if related_types_first is not None:
+                context['related_types_first'] = related_types_first.namespace
+            else:
+                context['related_types_first'] = 'all'
+            related_categories_first = event.categories.all().first()
+            if related_categories_first is not None:
+                context['related_categories_first'] = related_categories_first.slug
+            else:
+                context['related_categories_first'] = 'all'
+        related_events = event.related_events
+        if RELATED_EVENTS_COUNT:
+            context['related_events'] = related_events[:RELATED_EVENTS_COUNT]
         else:
-            context['related_types_first'] = 'all'
-        related_categories_first = event.categories.all().first()
-        if related_categories_first is not None:
-            context['related_categories_first'] = related_categories_first.slug
-        else:
-            context['related_categories_first'] = 'all'
-        ra_qs = Event.objects.published().distinct()
-        ra_qs = ra_qs.filter(categories__in=event.categories.all())
-        ra_qs = ra_qs.exclude(id=event.id)
-        context['related_events'] = ra_qs[:3]
+            context['related_events'] = related_events
 
         return context
 
@@ -251,6 +254,9 @@ class EventListBase(AppConfigMixin, AppHookCheckMixin, TemplatePrefixMixin,
                     PreviewModeMixin, ViewUrlMixin, ListView):
     model = Event
     show_header = False
+
+    def get_strict(self):
+        return False
 
     def get(self, request, *args, **kwargs):
         self.edit_mode = (request.toolbar and request.toolbar.edit_mode_active)

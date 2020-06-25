@@ -53,12 +53,12 @@ class SearchFilter(django_filters.Filter):
 
 
 class EventFilters(CustomFilterMixin, django_filters.FilterSet):
-    date = DateFilter('event_start')
+    date = DateFilter('event_start', choices=TIME_PERIODS, empty_label='by status')
     q = django_filters.CharFilter('translations__title', 'icontains', label='Search the directory')
-    service = django_filters.ModelChoiceFilter('services', label='service', queryset=Service.objects.published().exclude(**ADDITIONAL_EXCLUDE.get('service', {})).order_by('translations__title'))
-    category = django_filters.ModelChoiceFilter('categories', label='category', queryset=Category.objects.exclude(**ADDITIONAL_EXCLUDE.get('category', {})).order_by('translations__name'))
-    location = django_filters.ModelChoiceFilter('locations', label='location', queryset=Location.objects.published().exclude(**ADDITIONAL_EXCLUDE.get('location', {})).order_by('translations__name'))
-    section = django_filters.ModelChoiceFilter('app_config', label='section', queryset=EventsConfig.objects.filter(show_in_listing=True).exclude(namespace=EventsConfig.default_namespace, **ADDITIONAL_EXCLUDE.get('section', {})).order_by('translations__app_title'))
+    service = django_filters.ModelChoiceFilter('services', label='service', empty_label='by service', queryset=Service.objects.published().exclude(**ADDITIONAL_EXCLUDE.get('service', {})))
+    category = django_filters.ModelChoiceFilter('categories', label='category', empty_label='by category', queryset=Category.objects.exclude(**ADDITIONAL_EXCLUDE.get('category', {})))
+    location = django_filters.ModelChoiceFilter('locations', label='location', empty_label='by location', queryset=Location.objects.published().exclude(**ADDITIONAL_EXCLUDE.get('location', {})))
+    section = django_filters.ModelChoiceFilter('app_config', label='section', empty_label='by section', queryset=EventsConfig.objects.filter(show_in_listing=True).exclude(namespace=EventsConfig.default_namespace, **ADDITIONAL_EXCLUDE.get('section', {})))
     o = django_filters.OrderingFilter(fields=(('event_start', 'date'),))
 
     class Meta:
@@ -67,12 +67,10 @@ class EventFilters(CustomFilterMixin, django_filters.FilterSet):
 
     def __init__(self, values, *args, **kwargs):
         super(EventFilters, self).__init__(values, *args, **kwargs)
-        self.filters['date'].extra.update({'choices': TIME_PERIODS})
-        self.filters['date'].extra.update({'empty_label': 'by status'})
-        self.filters['service'].extra.update({'empty_label': 'by service'})
-        self.filters['category'].extra.update({'empty_label': 'by category'})
-        self.filters['section'].extra.update({'empty_label': 'by section'})
-        self.filters['location'].extra.update({'empty_label': 'by location'})
+        self.sort_choices(self.filters['service'])
+        self.sort_choices(self.filters['category'])
+        self.sort_choices(self.filters['section'])
+        self.sort_choices(self.filters['location'])
 
         if UPDATE_SEARCH_DATA_ON_SAVE:
             self.filters['q'] = SearchFilter(label='Search the directory')
@@ -85,4 +83,11 @@ class EventFilters(CustomFilterMixin, django_filters.FilterSet):
                 name = category[0].replace('-', '_')
                 self.filters[name] = django_filters.ModelChoiceFilter('categories', label=category[1], queryset=qs)
                 self.filters[name].extra.update({'empty_label': 'by %s' % category[1]})
+
+    def sort_choices(self, field):
+        field = field.field
+        if isinstance(field.choices, django_filters.fields.ModelChoiceIterator):
+            choices = [(obj.pk, str(obj)) for obj in field.choices.queryset]
+            field.iterator = django_filters.fields.ChoiceIterator
+            field._set_choices(sorted(choices, key=lambda item: item[1]))
 

@@ -31,6 +31,19 @@ if IS_THERE_COMPANIES:
 
 from cms.admin.placeholderadmin import PlaceholderAdminMixin
 
+try:
+    from js_custom_fields.forms import CustomFieldsFormMixin, CustomFieldsSettingsFormMixin
+except:
+    class CustomFieldsFormMixin(object):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.fields['custom_fields'].widget = forms.HiddenInput()
+
+    class CustomFieldsSettingsFormMixin(object):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.fields['custom_fields_settings'].widget = forms.HiddenInput()
+
 
 def make_published(modeladmin, request, queryset):
     queryset.update(is_published=True)
@@ -64,9 +77,11 @@ make_not_featured.short_description = _(
     "Mark selected events as not featured")
 
 
-class EventAdminForm(TranslatableModelForm):
+class EventAdminForm(CustomFieldsFormMixin, TranslatableModelForm):
     companies = forms.CharField()
     template = forms.ChoiceField(choices=EVENT_TEMPLATES, required=False)
+
+    custom_fields = 'get_custom_fields'
 
     class Meta:
         model = models.Event
@@ -86,6 +101,10 @@ class EventAdminForm(TranslatableModelForm):
                 self.fields['companies'].initial = self.instance.companies.all()
         else:
             del self.fields['companies']
+
+    def get_custom_fields(self):
+        if self.instance and hasattr(self.instance, 'app_config'):
+            return self.instance.app_config.custom_fields_settings
 
 
 class EventAdmin(
@@ -164,7 +183,8 @@ class EventAdmin(
                 'is_published',
                 'is_featured',
                 'hero_event',
-                extra_fields
+                extra_fields,
+                'custom_fields',
             )
         }),
         (_('Meta Options'), {
@@ -178,6 +198,7 @@ class EventAdmin(
                 'show_on_xml_sitemap',
                 'noindex',
                 'nofollow',
+                'canonical_url',
             )
         }),
         (_('Advanced Settings'), {
@@ -208,9 +229,13 @@ class EventAdmin(
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
         if IS_THERE_COMPANIES:
-            obj.companies = Company.objects.filter(pk__in=form.cleaned_data.get('companies'))
+            obj.companies.set(Company.objects.filter(pk__in=form.cleaned_data.get('companies')))
 
 admin.site.register(models.Event, EventAdmin)
+
+class EventsConfigAdminForm(CustomFieldsSettingsFormMixin, TranslatableModelForm):
+    pass
+
 
 
 class EventsConfigAdmin(
@@ -218,13 +243,18 @@ class EventsConfigAdmin(
     BaseAppHookConfig,
     TranslatableAdmin
 ):
+    form = EventsConfigAdminForm
+
     def get_config_fields(self):
         return (
             'app_title', 'allow_post', 'permalink_type', 'non_permalink_handling',
             'template_prefix', 'paginate_by', 'pagination_pages_start',
             'pagination_pages_visible', 'exclude_featured',
-            'search_indexed', 'show_in_listing', 'config.default_published',)
+            'search_indexed', 'show_in_listing', 'config.default_published',
+            'custom_fields_settings',)
 
+    def get_readonly_fields(self, request, obj=None):
+        return self.readonly_fields
 
 admin.site.register(models.EventsConfig, EventsConfigAdmin)
 

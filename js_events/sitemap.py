@@ -23,7 +23,7 @@ class EventsSitemap(I18NSitemap):
     def items(self):
         qs = Event.objects.published()
         if self.language is not None:
-            qs = qs.translated(self.language)
+            qs = qs.language(self.language)
         if self.namespace is not None:
             qs = qs.filter(app_config__namespace=self.namespace)
         if self.sitemap_type == 'html':

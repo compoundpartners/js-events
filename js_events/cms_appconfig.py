@@ -13,6 +13,7 @@ try:
 except ImportError:
     # Django 2.0
     from django.urls import reverse
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import override, ugettext_lazy as _
@@ -110,6 +111,7 @@ class EventsConfig(TranslatableModel, AppHookConfig):
         default=True,
         help_text=_('Include articles in listing pages and admin selects?'),
     )
+    custom_fields_settings = JSONField(blank=True, null=True)
 
 
     def get_app_title(self):

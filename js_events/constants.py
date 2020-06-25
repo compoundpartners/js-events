@@ -79,6 +79,12 @@ RELATED_SPEAKERS_LAYOUTS = getattr(
 )
 RELATED_SPEAKERS_LAYOUTS = get_template_choices(RELATED_SPEAKERS_LAYOUTS)
 
+GET_NEXT_EVENT = getattr(
+    settings,
+    'EVENTS_GET_NEXT_EVENT',
+    False,
+)
+
 SITEMAP_CHANGEFREQ = getattr(
     settings,
     'EVENTS_SITEMAP_CHANGEFREQ',
@@ -88,6 +94,11 @@ SITEMAP_PRIORITY = getattr(
     settings,
     'EVENTS_SITEMAP_PRIORITY',
     0.5,
+)
+RELATED_EVENTS_COUNT = getattr(
+    settings,
+    'EVENTS_RELATED_EVENTS_COUNT',
+    None,
 )
 try:
     IS_THERE_COMPANIES = True

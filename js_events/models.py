@@ -21,10 +21,12 @@ try:
 except ImportError:
     # Django 2.0
     from django.urls import reverse
+from django.contrib.postgres.fields import JSONField
 from django.db import connection, models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.functional import cached_property
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import override, ugettext
@@ -52,11 +54,18 @@ try:
 except ImportError:
     from urllib import parse as urlparse
 
+try:
+    from custom.js_events.models import CustomServiceMixin
+except:
+    class CustomEventMixin(object):
+        pass
+
 
 @python_2_unicode_compatible
-class Event(TranslatedAutoSlugifyMixin,
-              TranslationHelperMixin,
-              TranslatableModel):
+class Event(CustomEventMixin,
+            TranslatedAutoSlugifyMixin,
+            TranslationHelperMixin,
+            TranslatableModel):
 
     # TranslatedAutoSlugifyMixin options
     slug_source_field_name = 'title'
@@ -191,7 +200,14 @@ class Event(TranslatedAutoSlugifyMixin,
     show_on_xml_sitemap = models.BooleanField(_('Show on xml sitemap'), null=False, default=True)
     noindex = models.BooleanField(_('noindex'), null=False, default=False)
     nofollow = models.BooleanField(_('nofollow'), null=False, default=False)
+    canonical_url = models.CharField(
+        blank=True,
+        null=True,
+        max_length=255,
+        verbose_name=_('Canonical URL')
+    )
 
+    custom_fields = JSONField(blank=True, null=True)
     # Setting "symmetrical" to False since it's a bit unexpected that if you
     # set "B relates to A" you immediately have also "A relates to B". It have
     # to be forced to False because by default it's True if rel.to is "self":
@@ -265,11 +281,24 @@ class Event(TranslatedAutoSlugifyMixin,
 
     @property
     def end_date(self):
-        return self.event_end.date()
+        if self.event_end:
+            return self.event_end.date()
 
     @property
     def end_time(self):
-        return self.event_end.time()
+        if self.event_end:
+            return self.event_end.time()
+
+    @property
+    def hosts(self):
+        hosts = []
+        if self.host and self.host.published:
+            hosts.append(self.host)
+        if self.host_2 and self.host_2.published:
+            hosts.append(self.host_2)
+        if self.host_3 and self.host_3.published:
+            hosts.append(self.host_3)
+        return hosts
 
     def get_absolute_url(self, language=None):
         """Returns the url for this Event in the selected permalink format."""
@@ -342,14 +371,29 @@ class Event(TranslatedAutoSlugifyMixin,
     def __str__(self):
         return self.safe_translation_getter('title', any_language=True)
 
+    def _get_related_qs(self, queryset):
+        queryset = queryset.exclude(pk=self.pk).order_by('-event_start')
+        if self.services.exists():
+            return queryset.filter(services__in=self.services.all())
+        elif self.categories.exists():
+            return queryset.filter(categories__in=self.categories.all())
+        else:
+            return queryset.filter(app_config=self.app_config)
+
     def related_events(self):
-        return Event.objects.published().filter(app_config=self.app_config).order_by('-event_start')
+        return self._get_related_qs(Event.objects.published())
 
     def related_upcoming_events(self):
-        return Event.objects.past().filter(app_config=self.app_config).order_by('event_start')
+        return self._get_related_qs(Event.objects.past())
 
     def related_past_events(self):
-        return Event.objects.upcoming().filter(app_config=self.app_config).order_by('-event_start')
+        return self._get_related_qs(Event.objects.upcoming())
+
+    cached_related_events = cached_property(related_events, name='cached_related_events')
+
+    cached_related_upcoming_events = cached_property(related_upcoming_events, name='cached_related_upcoming_events')
+
+    cached_related_past_events = cached_property(related_past_events, name='cached_related_past_events')
 
 
 @python_2_unicode_compatible
@@ -511,11 +555,11 @@ class EventRelatedPlugin(PluginEditModeMixin, AdjustableCacheModelMixin,
     more_button_link = models.CharField(max_length=255, blank=True, verbose_name=_('See More Button Link'))
 
     def copy_relations(self, oldinstance):
-        self.related_types = oldinstance.related_types.all()
-        self.related_categories = oldinstance.related_categories.all()
-        self.related_services = oldinstance.related_services.all()
-        self.related_hosts = oldinstance.related_hosts.all()
-        self.related_locations = oldinstance.related_locations.all()
+        self.related_types.set(oldinstance.related_types.all())
+        self.related_categories.set(oldinstance.related_categories.all())
+        self.related_services.set(oldinstance.related_services.all())
+        self.related_hosts.set(oldinstance.related_hosts.all())
+        self.related_locations.set(oldinstance.related_locations.all())
 
     def __str__(self):
         return ugettext('Related events')
@@ -537,7 +581,7 @@ class RelatedSpeakersPlugin(CMSPlugin):
     speakers = SortedManyToManyField(Speaker, verbose_name=_('speakers'), blank=True, symmetrical=False)
 
     def copy_relations(self, oldinstance):
-        self.speakers = oldinstance.speakers.all()
+        self.speakers.set(oldinstance.speakers.all())
 
     def __str__(self):
         return get_template_title(RELATED_SPEAKERS_LAYOUTS, self.layout)
