@@ -2,6 +2,7 @@
 
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 try:
     from django.core.urlresolvers import reverse
@@ -13,6 +14,8 @@ from django.utils.translation import (
 
 from cms.toolbar_base import CMSToolbar
 from cms.toolbar_pool import toolbar_pool
+from cms.utils.i18n import get_language_tuple, get_language_dict
+from menus.utils import DefaultLanguageChanger
 
 from aldryn_apphooks_config.utils import get_app_instance
 from aldryn_translation_tools.utils import (
@@ -23,8 +26,10 @@ from aldryn_translation_tools.utils import (
 from .models import Event
 from .cms_appconfig import EventsConfig
 
-from cms.cms_toolbars import ADMIN_MENU_IDENTIFIER, ADMINISTRATION_BREAK
-
+from cms.cms_toolbars import (
+    ADMIN_MENU_IDENTIFIER,
+    LANGUAGE_MENU_IDENTIFIER,
+)
 
 @toolbar_pool.register
 class EventsToolbar(CMSToolbar):
@@ -138,3 +143,14 @@ class EventsToolbar(CMSToolbar):
                                     [event.pk, ])
                 menu.add_modal_item(_('Delete this event'), url=url,
                                     on_close=redirect_url)
+
+        if settings.USE_I18N:# and not self._language_menu:
+            self._language_menu = self.toolbar.get_or_create_menu(LANGUAGE_MENU_IDENTIFIER, _('Language'), position=-1)
+            self._language_menu.items = []
+            for code, name in get_language_tuple(self.current_site.pk):
+                try:
+                    url = DefaultLanguageChanger(self.request)(code)
+                except NoReverseMatch:
+                    url = None
+                if url:
+                    self._language_menu.add_link_item(name, url=url, active=self.current_lang == code)

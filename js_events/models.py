@@ -384,10 +384,10 @@ class Event(CustomEventMixin,
         return self._get_related_qs(Event.objects.published())
 
     def related_upcoming_events(self):
-        return self._get_related_qs(Event.objects.past())
+        return self._get_related_qs(Event.objects.upcoming())
 
     def related_past_events(self):
-        return self._get_related_qs(Event.objects.upcoming())
+        return self._get_related_qs(Event.objects.past())
 
     cached_related_events = cached_property(related_events, name='cached_related_events')
 
