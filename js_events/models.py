@@ -371,6 +371,13 @@ class Event(CustomEventMixin,
     def __str__(self):
         return self.safe_translation_getter('title', any_language=True)
 
+    def get_placeholders(self):
+        return [
+            self.content,
+            self.registration_content,
+            self.sidebar,
+        ]
+
     def _get_related_qs(self, queryset):
         queryset = queryset.exclude(pk=self.pk).order_by('-event_start')
         if self.services.exists():
