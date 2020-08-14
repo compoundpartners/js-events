@@ -100,6 +100,16 @@ RELATED_EVENTS_COUNT = getattr(
     'EVENTS_RELATED_EVENTS_COUNT',
     None,
 )
+EVENT_CUSTOM_FIELDS = getattr(
+    settings,
+    'EVENTS_EVENT_CUSTOM_FIELDS',
+    {},
+)
+EVENT_SECTION_CUSTOM_FIELDS = getattr(
+    settings,
+    'EVENTS_EVENT_SECTION_CUSTOM_FIELDS',
+    {},
+)
 try:
     IS_THERE_COMPANIES = True
     from js_companies.models import Company

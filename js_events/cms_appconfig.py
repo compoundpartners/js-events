@@ -112,6 +112,7 @@ class EventsConfig(TranslatableModel, AppHookConfig):
         help_text=_('Include articles in listing pages and admin selects?'),
     )
     custom_fields_settings = JSONField(blank=True, null=True)
+    custom_fields = JSONField(blank=True, null=True)
 
 
     def get_app_title(self):

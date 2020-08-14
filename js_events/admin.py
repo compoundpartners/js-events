@@ -8,7 +8,8 @@ from cms.admin.placeholderadmin import FrontendEditableAdminMixin
 from cms.utils.i18n import get_current_language, get_language_list
 from cms.utils import copy_plugins, get_current_site
 from django.db import transaction
-from django.db.models.query import EmptyQuerySet, SlugField
+from django.db.models import SlugField
+from django.db.models.query import EmptyQuerySet
 from django import forms
 from django.conf.urls import url
 from django.contrib import admin
@@ -41,6 +42,8 @@ from .constants import (
     EVENTS_ENABLE_CPD,
     IS_THERE_COMPANIES,
     EVENT_TEMPLATES,
+    EVENT_CUSTOM_FIELDS,
+    EVENT_SECTION_CUSTOM_FIELDS,
 )
 if IS_THERE_COMPANIES:
     from js_companies.models import Company
@@ -53,12 +56,14 @@ except:
     class CustomFieldsFormMixin(object):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            self.fields['custom_fields'].widget = forms.HiddenInput()
+            if 'custom_fields' in self.fields:
+                self.fields['custom_fields'].widget = forms.HiddenInput()
 
     class CustomFieldsSettingsFormMixin(object):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            self.fields['custom_fields_settings'].widget = forms.HiddenInput()
+            if 'custom_fields_settings' in self.fields:
+                self.fields['custom_fields_settings'].widget = forms.HiddenInput()
 
 require_POST = method_decorator(require_POST)
 
@@ -120,8 +125,10 @@ class EventAdminForm(CustomFieldsFormMixin, TranslatableModelForm):
             del self.fields['companies']
 
     def get_custom_fields(self):
-        if self.instance and hasattr(self.instance, 'app_config'):
-            return self.instance.app_config.custom_fields_settings
+        fields = EVENT_CUSTOM_FIELDS
+        if self.instance and hasattr(self.instance, 'app_config') and self.instance.app_config.custom_fields_settings:
+            fields.update(self.instance.app_config.custom_fields_settings)
+        return fields
 
 
 class EventAdmin(
@@ -295,8 +302,8 @@ class EventAdmin(
 
 admin.site.register(models.Event, EventAdmin)
 
-class EventsConfigAdminForm(CustomFieldsSettingsFormMixin, TranslatableModelForm):
-    pass
+class EventsConfigAdminForm(CustomFieldsFormMixin, CustomFieldsSettingsFormMixin, TranslatableModelForm):
+    custom_fields = EVENT_SECTION_CUSTOM_FIELDS
 
 
 
@@ -313,7 +320,7 @@ class EventsConfigAdmin(
             'template_prefix', 'paginate_by', 'pagination_pages_start',
             'pagination_pages_visible', 'exclude_featured',
             'search_indexed', 'show_in_listing', 'config.default_published',
-            'custom_fields_settings',)
+            'custom_fields_settings', 'custom_fields')
 
     def get_readonly_fields(self, request, obj=None):
         return self.readonly_fields

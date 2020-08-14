@@ -62,6 +62,7 @@ js_events/migrations/0031_auto_20191202_1736.py
 js_events/migrations/0032_eventsconfig_show_in_listing.py
 js_events/migrations/0033_auto_20200128_1149.py
 js_events/migrations/0034_auto_20200625_1103.py
+js_events/migrations/0035_eventsconfig_custom_fields.py
 js_events/migrations/__init__.py
 js_events/templates/js_events/base.html
 js_events/templates/js_events/event_detail.html
