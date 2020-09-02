@@ -138,7 +138,7 @@ class EventAdmin(
     TranslatableAdmin
 ):
     def get_queryset(self, request):
-        return self.model.all_objects
+        return self.model.all_objects.distinct()
 
     form = EventAdminForm
     list_display = ('title_view', 'app_config', 'event_start', 'is_featured',
