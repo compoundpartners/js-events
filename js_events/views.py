@@ -136,7 +136,7 @@ class EventDetail(AppConfigMixin, AppHookCheckMixin, EditModeMixin,
         """
         if not hasattr(self, 'object'):
             self.object = self.get_object()
-        set_language_changer(request, self.object.get_absolute_url)
+        set_language_changer(request, self.object.get_public_url)
         if self.object.redirect_url:
             return HttpResponseRedirect(self.object.redirect_url)
 
@@ -446,8 +446,7 @@ class EventsSitemap(Sitemap):
     priority = 0.7
 
     def items(self):
-        return Event.objects.all().filter(is_published=True).filter(
-            publishing_date__lte=datetime.now()).distinct()
+        return Event.objects.published()
 
     def lastmod(self, obj):
         return obj.publishing_date  # MOD date exists?  (e.g. when plugins are updated)

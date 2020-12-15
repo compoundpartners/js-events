@@ -16,6 +16,8 @@ from django.utils.timezone import now
 from aldryn_apphooks_config.managers.base import ManagerMixin, QuerySetMixin
 from parler.managers import TranslatableManager, TranslatableQuerySet
 
+from .constants import TRANSLATE_IS_PUBLISHED
+
 
 class EventQuerySet(QuerySetMixin, TranslatableQuerySet):
     def published(self):
@@ -23,7 +25,15 @@ class EventQuerySet(QuerySetMixin, TranslatableQuerySet):
         Returns Events that are published AND have a publishing_date that
         has actually passed.
         """
-        return self.filter(is_published=True, publishing_date__lte=now())
+        qs = self.filter(publishing_date__lte=now())
+        if TRANSLATE_IS_PUBLISHED:
+            return qs.translated(is_published_trans=True)
+        return qs.filter(is_published=True)
+
+    def published_one_of_trans(self):
+        if TRANSLATE_IS_PUBLISHED:
+            return self.filter(publishing_date__lte=now(), translations__is_published_trans=True)
+        return self.published()
 
     def with_image(self):
         return self.filter(featured_image__isnull=False)

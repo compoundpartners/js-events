@@ -21,7 +21,7 @@ class EventsSitemap(I18NSitemap):
         super(EventsSitemap, self).__init__(*args, **kwargs)
 
     def items(self):
-        qs = Event.objects.published()
+        qs = Event.objects.published().filter(redirect_url='')
         if self.language is not None:
             qs = qs.language(self.language)
         if self.namespace is not None:

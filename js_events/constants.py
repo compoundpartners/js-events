@@ -110,6 +110,11 @@ EVENT_SECTION_CUSTOM_FIELDS = getattr(
     'EVENTS_EVENT_SECTION_CUSTOM_FIELDS',
     {},
 )
+TRANSLATE_IS_PUBLISHED = getattr(
+    settings,
+    'EVENTS_TRANSLATE_IS_PUBLISHED',
+    False,
+)
 try:
     IS_THERE_COMPANIES = True
     from js_companies.models import Company

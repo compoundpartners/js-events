@@ -39,7 +39,7 @@ from aldryn_newsblog.utils import get_plugin_index_data, get_request, strip_tags
 from aldryn_people.vcard import Vcard
 from .cms_appconfig import EventsConfig
 from .managers import RelatedManager, SpeakerManager, AllManager, SearchManager
-from .constants import get_template_title, RELATED_SPEAKERS_LAYOUTS
+from .constants import get_template_title, RELATED_SPEAKERS_LAYOUTS, TRANSLATE_IS_PUBLISHED
 
 try:
     from django.utils.encoding import force_unicode
@@ -115,7 +115,12 @@ class Event(CustomEventMixin,
             verbose_name=_('meta keywords'), blank=True, default=''),
         meta={'unique_together': (('language_code', 'slug', ), )},
 
-        search_data=models.TextField(blank=True, editable=False)
+        search_data=models.TextField(blank=True, editable=False),
+
+        is_published_trans = models.BooleanField(_('is published'),
+            default=False, db_index=True),
+        is_featured_trans = models.BooleanField(_('is featured'),
+            default=False, db_index=True),
     )
 
     price=models.CharField(
@@ -249,6 +254,14 @@ class Event(CustomEventMixin,
         Returns True only if the event (is_published == True) AND has a
         published_date that has passed.
         """
+        language = get_current_language()
+        return self.published_for_language(language)
+
+    def published_for_language(self, language):
+        if TRANSLATE_IS_PUBLISHED:
+            return (
+                (self.safe_translation_getter('is_published_trans', language_code=language, any_language=False) or False
+            ) and self.publishing_date <= now())
         return (self.is_published and self.publishing_date <= now())
 
     @property
@@ -257,6 +270,10 @@ class Event(CustomEventMixin,
         Returns True if the event is published but is scheduled for a
         future date/time.
         """
+        if TRANSLATE_IS_PUBLISHED:
+            return (
+                (self.safe_translation_getter('is_published_trans', language_code=language, any_language=False) or False
+            ) and self.publishing_date > now())
         return (self.is_published and self.publishing_date > now())
 
     @property
@@ -330,6 +347,17 @@ class Event(CustomEventMixin,
 
         with override(language):
             return reverse('{0}event-detail'.format(namespace), kwargs=kwargs)
+
+    def get_public_url(self, language=None):
+        if not language:
+            language = get_current_language()
+        if not TRANSLATE_IS_PUBLISHED and self.published:
+            return self.get_absolute_url(language)
+        if (TRANSLATE_IS_PUBLISHED and \
+                (self.safe_translation_getter('is_published_trans', language_code=language, any_language=False) or False) and \
+                self.publishing_date <= now()):
+            return self.get_absolute_url(language)
+        return ''
 
     def get_search_data(self, language=None, request=None):
         """

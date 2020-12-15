@@ -19,6 +19,7 @@ from django.views.decorators.http import require_POST
 from django.utils.translation import ugettext_lazy as _
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_text
+from django.utils.html import mark_safe
 from django.core.exceptions import PermissionDenied
 from django.http import (
     HttpResponseRedirect,
@@ -44,6 +45,7 @@ from .constants import (
     EVENT_TEMPLATES,
     EVENT_CUSTOM_FIELDS,
     EVENT_SECTION_CUSTOM_FIELDS,
+    TRANSLATE_IS_PUBLISHED
 )
 if IS_THERE_COMPANIES:
     from js_companies.models import Company
@@ -68,32 +70,48 @@ except:
 require_POST = method_decorator(require_POST)
 
 def make_published(modeladmin, request, queryset):
-    queryset.update(is_published=True)
-
+    if TRANSLATE_IS_PUBLISHED:
+        for i in queryset.all():
+            i.is_published_trans = True
+            i.save()
+    else:
+        queryset.update(is_published=True)
 
 make_published.short_description = _(
     "Mark selected events as published")
 
 
 def make_unpublished(modeladmin, request, queryset):
-    queryset.update(is_published=False)
-
+    if TRANSLATE_IS_PUBLISHED:
+        for i in queryset.all():
+            i.is_published_trans = False
+            i.save()
+    else:
+        queryset.update(is_published=False)
 
 make_unpublished.short_description = _(
     "Mark selected events as not published")
 
 
 def make_featured(modeladmin, request, queryset):
-    queryset.update(is_featured=True)
-
+    if TRANSLATE_IS_PUBLISHED:
+        for i in queryset.all():
+            i.is_featured_trans = True
+            i.save()
+    else:
+        queryset.update(is_featured=True)
 
 make_featured.short_description = _(
     "Mark selected events as featured")
 
 
 def make_not_featured(modeladmin, request, queryset):
-    queryset.update(is_featured=False)
-
+    if TRANSLATE_IS_PUBLISHED:
+        for i in queryset.all():
+            i.is_featured_trans = False
+            i.save()
+    else:
+        queryset.update(is_featured=False)
 
 make_not_featured.short_description = _(
     "Mark selected events as not featured")
@@ -157,6 +175,14 @@ class EventAdmin(
          return obj.title
     title_view.short_description  = 'title'
     title_view.admin_order_field = 'translations__title'
+
+    def is_published_trans_safe(self, obj):
+        return mark_safe('<img src="/static/admin/img/icon-yes.svg" alt="True">' if obj.safe_translation_getter('is_published_trans', default=False) else '<img src="/static/admin/img/icon-no.svg" alt="False">')
+    is_published_trans_safe.short_description = _('is published')
+
+    def is_featured_trans_safe(self, obj):
+        return mark_safe('<img src="/static/admin/img/icon-yes.svg" alt="True">' if obj.safe_translation_getter('is_featured_trans', default=False) else '<img src="/static/admin/img/icon-no.svg" alt="False">')
+    is_featured_trans_safe.short_description = _('is featured')
 
     extra_fields = (
     )
@@ -240,15 +266,36 @@ class EventAdmin(
     app_config_selection_title = ''
     app_config_selection_desc = ''
 
+    def get_list_display(self, request):
+        fields = []
+        list_display = super().get_list_display(request)
+        for field in list_display:
+            if field  in ['is_published', 'is_featured'] and TRANSLATE_IS_PUBLISHED:
+                field += '_trans_safe'
+            fields.append(field)
+        return fields
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request, obj)
+        for fieldset in fieldsets:
+            if len(fieldset) == 2 and 'fields' in fieldset[1]:
+                fields = []
+                for field in fieldset[1]['fields']:
+                    if field  in ['is_published', 'is_featured'] and TRANSLATE_IS_PUBLISHED:
+                        field += '_trans'
+                    fields.append(field)
+                fieldset[1]['fields'] = fields
+        return fieldsets
+
     def formfield_for_manytomany(self, db_field, request=None, **kwargs):
         if db_field.name in ['services', 'locations']:
             kwargs['widget'] = SortedFilteredSelectMultiple(attrs={'verbose_name': 'service'})
-        return super(EventAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         if db_field.name == 'app_config':
             kwargs["queryset"] = models.EventsConfig.objects.exclude(namespace=models.EventsConfig.default_namespace)
-        return super(EventAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
