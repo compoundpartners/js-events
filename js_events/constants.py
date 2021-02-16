@@ -115,6 +115,17 @@ TRANSLATE_IS_PUBLISHED = getattr(
     'EVENTS_TRANSLATE_IS_PUBLISHED',
     False,
 )
+FILTER_EMPTY_LABELS = getattr(
+    settings,
+    'SEARCH_FILTER_EMPTY_LABELS',
+    {}
+)
+FILTER_EMPTY_LABELS.update(getattr(
+    settings,
+    'EVENTS_FILTER_EMPTY_LABELS',
+    {}
+))
+
 try:
     IS_THERE_COMPANIES = True
     from js_companies.models import Company
