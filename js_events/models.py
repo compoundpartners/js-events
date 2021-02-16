@@ -200,6 +200,14 @@ class Event(CustomEventMixin,
         blank=True,
         on_delete=models.SET_NULL,
     )
+    share_image = FilerImageField(
+        verbose_name=_('social share image'),
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        help_text='This image will only be shown on social channels. Minimum size: 1200x630px',
+        related_name='+'
+    )
 
     show_on_sitemap = models.BooleanField(_('Show on sitemap'), null=False, default=True)
     show_on_xml_sitemap = models.BooleanField(_('Show on xml sitemap'), null=False, default=True)
@@ -409,9 +417,9 @@ class Event(CustomEventMixin,
     def _get_related_qs(self, queryset):
         queryset = queryset.exclude(pk=self.pk).order_by('-event_start')
         if self.services.exists():
-            return queryset.filter(services__in=self.services.all())
+            return queryset.filter(services__in=self.services.all()).distinct()
         elif self.categories.exists():
-            return queryset.filter(categories__in=self.categories.all())
+            return queryset.filter(categories__in=self.categories.all()).distinct()
         else:
             return queryset.filter(app_config=self.app_config)
 
