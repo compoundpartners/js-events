@@ -217,6 +217,7 @@ class EventAdmin(
                 'title',
                 'lead_in',
                 'featured_image',
+                'channel',
                 'location',
                 'display_location',
                 ('latitude', 'longitude'),
@@ -385,3 +386,8 @@ class SpeakerAdmin(admin.ModelAdmin):
     #}
 
 admin.site.register(models.Speaker, SpeakerAdmin)
+
+class ChannelAdminclass(TranslatableAdmin):
+    fields = ['name', 'position']
+
+admin.site.register(models.Channel, ChannelAdminclass)

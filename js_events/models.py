@@ -62,6 +62,41 @@ except:
 
 
 @python_2_unicode_compatible
+class Channel(TranslatedAutoSlugifyMixin,
+              TranslationHelperMixin,
+              TranslatableModel):
+
+    # TranslatedAutoSlugifyMixin options
+    slug_source_field_name = 'title'
+    slug_default = 'untitled'
+
+    translations = TranslatedFields(
+        name=models.CharField(_('name'), max_length=234),
+        slug=models.SlugField(
+            verbose_name=_('slug'),
+            max_length=255,
+            db_index=True,
+            blank=True,
+            help_text=_(
+                'Used in the URL. If changed, the URL will change. '
+                'Clear it to have it re-created automatically.'),
+        ),
+    )
+    position = models.PositiveSmallIntegerField(
+        default=0,
+        blank=False,
+    )
+
+    class Meta:
+        ordering = ['position']
+        verbose_name = _('Channel')
+        verbose_name_plural = _('Channels')
+
+    def __str__(self):
+        return self.safe_translation_getter('name', any_language=True)
+
+
+@python_2_unicode_compatible
 class Event(CustomEventMixin,
             TranslatedAutoSlugifyMixin,
             TranslationHelperMixin,
@@ -183,6 +218,8 @@ class Event(CustomEventMixin,
         verbose_name=_('Event template'),
         blank=True, default='',
     )
+    channel = models.ForeignKey(Channel, on_delete=models.SET_NULL,
+        null=True, blank=True, verbose_name=_('channel'))
     categories = CategoryManyToManyField(Category,
                                          verbose_name=_('categories'),
                                          blank=True)

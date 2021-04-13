@@ -59,12 +59,13 @@ class EventFilters(CustomFilterMixin, django_filters.FilterSet):
     service = django_filters.ModelChoiceFilter('services', label='service', empty_label='by service', queryset=Service.objects.published().exclude(**ADDITIONAL_EXCLUDE.get('service', {})))
     category = django_filters.ModelChoiceFilter('categories', label='category', empty_label='by category', queryset=Category.objects.exclude(**ADDITIONAL_EXCLUDE.get('category', {})))
     location = django_filters.ModelChoiceFilter('locations', label='location', empty_label='by location', queryset=Location.objects.published().exclude(**ADDITIONAL_EXCLUDE.get('location', {})))
-    section = django_filters.ModelChoiceFilter('app_config', label='section', empty_label='by section', queryset=EventsConfig.objects.filter(show_in_listing=True).exclude(namespace=EventsConfig.default_namespace, **ADDITIONAL_EXCLUDE.get('section', {})))
+    section = django_filters.ModelChoiceFilter('app_config', label='section', empty_label='by section', queryset=EventsConfig.objects.filter(show_in_listing=True).exclude(namespace=EventsConfig.default_namespace).exclude(**ADDITIONAL_EXCLUDE.get('section', {})))
+    channel = django_filters.ModelChoiceFilter('channel', label='channel', empty_label='by channel', queryset=models.Channel.objects.exclude(**ADDITIONAL_EXCLUDE.get('channel', {})).order_by('position'))
     o = django_filters.OrderingFilter(fields=(('event_start', 'date'),))
 
     class Meta:
         model = models.Event
-        fields = ['date', 'q', 'service', 'category', 'section', 'location']
+        fields = ['date', 'q', 'service', 'category', 'section', 'location', 'channel']
 
     def __init__(self, values, *args, **kwargs):
         super(EventFilters, self).__init__(values, *args, **kwargs)
