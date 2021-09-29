@@ -8,7 +8,7 @@ except:
     SortedFilteredSelectMultiple = FilteredSelectMultiple
 from aldryn_categories.models import Category
 from aldryn_people.models import Person
-from js_services.models import Service
+from js_services.models import Service, ServicesConfig
 from js_locations.models import Location
 from . import models
 from .cms_appconfig import EventsConfig
@@ -38,6 +38,11 @@ class EventRelatedPluginForm(forms.ModelForm):
         queryset=Category.objects.all(),
         required=False,
         widget=FilteredSelectMultiple('Related categories', False)
+    )
+    related_service_sections = forms.ModelMultipleChoiceField(
+        queryset=ServicesConfig.objects.all(),
+        required=False,
+        widget=FilteredSelectMultiple('Related service sections', False)
     )
     related_services = forms.ModelMultipleChoiceField(
         queryset=Service.objects.all(),

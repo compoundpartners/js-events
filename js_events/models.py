@@ -626,6 +626,7 @@ class EventRelatedPlugin(PluginEditModeMixin, AdjustableCacheModelMixin,
     exclude_current_item = models.BooleanField(blank=True, default=False, verbose_name=_('Exclude current event'))
     related_types = SortedManyToManyField(EventsConfig, verbose_name=_('related sections'), blank=True, symmetrical=False)
     related_categories = SortedManyToManyField(Category, verbose_name=_('related categories'), blank=True, symmetrical=False)
+    related_service_sections = SortedManyToManyField('js_services.ServicesConfig', verbose_name=_('related service section'), blank=True, symmetrical=False)
     related_services = SortedManyToManyField('js_services.Service', verbose_name=_('related services'), blank=True, symmetrical=False)
     related_hosts = SortedManyToManyField(Person, verbose_name=_('related hosts'), blank=True, symmetrical=False)
     related_locations = SortedManyToManyField('js_locations.location', verbose_name=_('related locations'), blank=True)
@@ -637,6 +638,7 @@ class EventRelatedPlugin(PluginEditModeMixin, AdjustableCacheModelMixin,
     def copy_relations(self, oldinstance):
         self.related_types.set(oldinstance.related_types.all())
         self.related_categories.set(oldinstance.related_categories.all())
+        self.related_service_sections.set(oldinstance.related_service_sections.all())
         self.related_services.set(oldinstance.related_services.all())
         self.related_hosts.set(oldinstance.related_hosts.all())
         self.related_locations.set(oldinstance.related_locations.all())

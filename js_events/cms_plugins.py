@@ -71,6 +71,7 @@ class EventRelatedPlugin(AdjustableCacheMixin, CMSPluginBase):
         'more_button_link',
         'related_types',
         'related_categories',
+        'related_service_sections',
         'related_services',
         'related_hosts',
         'related_locations',
@@ -98,6 +99,7 @@ class EventRelatedPlugin(AdjustableCacheMixin, CMSPluginBase):
         related_types = instance.related_types
         related_hosts = instance.related_hosts.all()
         related_categories = instance.related_categories.all()
+        related_service_sections = instance.related_service_sections.all()
         related_services = instance.related_services.all()
         related_locations = instance.related_locations.all()
 
@@ -115,6 +117,8 @@ class EventRelatedPlugin(AdjustableCacheMixin, CMSPluginBase):
             qs = qs.filter(host__in=related_hosts.all())
         if related_categories:
             qs = qs.filter(categories__in=related_categories.all())
+        if related_service_sections.exists():
+            qs = qs.filter(services__sections__in=related_service_sections.all())
         if related_services:
             qs = qs.filter(services__in=related_services.all())
         if related_locations:
