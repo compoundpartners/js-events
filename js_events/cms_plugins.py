@@ -14,7 +14,7 @@ from cms.plugin_pool import plugin_pool
 from django.contrib.admin.widgets import FilteredSelectMultiple
 
 from . import models, forms, filters
-from .constants import RELATED_LAYOUTS
+from .constants import RELATED_LAYOUTS, TRANSLATE_IS_PUBLISHED
 
 
 CMS_GTE_330 = LooseVersion(cms_version) >= LooseVersion('3.3.0')
@@ -128,7 +128,10 @@ class EventRelatedPlugin(AdjustableCacheMixin, CMSPluginBase):
             if current_event is not None:
                 qs = qs.exclude(id=current_event.id)
         if instance.featured:
-            qs = qs.filter(is_featured=True)
+            if TRANSLATE_IS_PUBLISHED:
+                qs = qs.translated(is_featured_trans=True)
+            else:
+                qs = qs.filter(is_featured=True)
 
         if instance.layout == 'filter':
             f = filters.EventFilters(request.GET, queryset=qs)
