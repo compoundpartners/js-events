@@ -186,6 +186,8 @@ class Event(CustomEventMixin,
                                related_name='events_event_registration_content')
     sidebar = PlaceholderField('Event Sidebar',
                                related_name='events_event_sidebar')
+    related_articles_placeholder = PlaceholderField('Related Articles',
+        related_name='events_event_related_articles_placeholder')
     registration_link = models.CharField(max_length=255,
         verbose_name=_('Registration link'),
         blank=True, default='',
