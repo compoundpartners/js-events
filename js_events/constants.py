@@ -34,6 +34,11 @@ EVENTS_ENABLE_CPD = getattr(
     'EVENTS_ENABLE_CPD',
     True,
 )
+SHOW_RELATED_IMAGE = getattr(
+    settings,
+    'EVENTS_SHOW_RELATED_IMAGE',
+    False,
+)
 ADD_FILTERED_CATEGORIES = getattr(
     settings,
     'EVENTS_ADD_FILTERED_CATEGORIES',
@@ -113,6 +118,11 @@ EVENT_SECTION_CUSTOM_FIELDS = getattr(
 TRANSLATE_IS_PUBLISHED = getattr(
     settings,
     'EVENTS_TRANSLATE_IS_PUBLISHED',
+    False,
+)
+TRANSLATE_CUSTOM_FIELDS = getattr(
+    settings,
+    'EVENTS_TRANSLATE_CUSTOM_FIELDS',
     False,
 )
 FILTER_EMPTY_LABELS = getattr(

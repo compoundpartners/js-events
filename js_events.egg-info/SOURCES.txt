@@ -68,6 +68,10 @@ js_events/migrations/0037_event_share_image.py
 js_events/migrations/0038_auto_20210312_1142.py
 js_events/migrations/0039_eventrelatedplugin_related_service_sections.py
 js_events/migrations/0040_event_related_articles_placeholder.py
+js_events/migrations/0041_auto_20220203_1212.py
+js_events/migrations/0042_event_event_banner.py
+js_events/migrations/0043_eventtranslation_custom_fields_trans.py
+js_events/migrations/0044_event_related_image.py
 js_events/migrations/__init__.py
 js_events/templates/js_events/base.html
 js_events/templates/js_events/event_detail.html

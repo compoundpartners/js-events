@@ -45,7 +45,9 @@ from .constants import (
     EVENT_TEMPLATES,
     EVENT_CUSTOM_FIELDS,
     EVENT_SECTION_CUSTOM_FIELDS,
-    TRANSLATE_IS_PUBLISHED
+    TRANSLATE_IS_PUBLISHED,
+    TRANSLATE_CUSTOM_FIELDS,
+    SHOW_RELATED_IMAGE,
 )
 if IS_THERE_COMPANIES:
     from js_companies.models import Company
@@ -128,6 +130,9 @@ class EventAdminForm(CustomFieldsFormMixin, TranslatableModelForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
+        if TRANSLATE_CUSTOM_FIELDS:
+            self.custom_fields_field_name = 'custom_fields_trans'
+
         super(EventAdminForm, self).__init__(*args, **kwargs)
 
         if not EVENTS_SUMMARY_RICHTEXT:
@@ -141,6 +146,19 @@ class EventAdminForm(CustomFieldsFormMixin, TranslatableModelForm):
                 self.fields['companies'].initial = self.instance.companies.all()
         else:
             del self.fields['companies']
+        if 'event_start' in self.fields:
+            if self.instance and hasattr(self.instance, 'app_config'):
+                self.fields['event_start'].required = self.instance.app_config.dates_required
+            elif 'app_config' in self.initial:
+                self.fields['event_start'].required = self.fields['app_config'].initial.dates_required
+            elif len(args) > 0 and 'app_config' in args[0] and args[0]['app_config'].isnumeric():
+                app_config = models.EventsConfig.objects.filter(pk=args[0]['app_config'])
+                if app_config.count():
+                    self.fields['event_start'].required = app_config[0].dates_required
+                else:
+                    self.fields['event_start'].required = True
+            else:
+                self.fields['event_start'].required = True
 
     def get_custom_fields(self):
         fields = EVENT_CUSTOM_FIELDS
@@ -217,6 +235,7 @@ class EventAdmin(
                 'title',
                 'lead_in',
                 'featured_image',
+                'related_image' if SHOW_RELATED_IMAGE else (),
                 'channel',
                 'location',
                 'display_location',
@@ -262,9 +281,6 @@ class EventAdmin(
     filter_horizontal = [
         'categories',
     ]
-    app_config_values = {
-        'default_published': 'is_published'
-    }
     app_config_selection_title = ''
     app_config_selection_desc = ''
 
@@ -285,13 +301,17 @@ class EventAdmin(
                 for field in fieldset[1]['fields']:
                     if field  in ['is_published', 'is_featured'] and TRANSLATE_IS_PUBLISHED:
                         field += '_trans'
+                    elif field  == 'custom_fields' and TRANSLATE_CUSTOM_FIELDS:
+                        field += '_trans'
                     fields.append(field)
                 fieldset[1]['fields'] = fields
         return fieldsets
 
     def formfield_for_manytomany(self, db_field, request=None, **kwargs):
-        if db_field.name in ['services', 'locations']:
-            kwargs['widget'] = SortedFilteredSelectMultiple(attrs={'verbose_name': 'service'})
+        if db_field.name == 'services':
+            kwargs['widget'] = SortedFilteredSelectMultiple(attrs={'verbose_name': db_field.name})
+        elif db_field.name == 'locations':
+            kwargs['widget'] = SortedFilteredSelectMultiple(attrs={'verbose_name': db_field.name})
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
@@ -368,7 +388,7 @@ class EventsConfigAdmin(
             'app_title', 'allow_post', 'permalink_type', 'non_permalink_handling',
             'template_prefix', 'paginate_by', 'pagination_pages_start',
             'pagination_pages_visible', 'exclude_featured',
-            'search_indexed', 'show_in_listing', 'config.default_published',
+            'search_indexed', 'show_in_listing', 'dates_required',
             'custom_fields_settings', 'custom_fields')
 
     def get_readonly_fields(self, request, obj=None):

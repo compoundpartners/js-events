@@ -104,7 +104,7 @@ class AppHookCheckMixin(object):
         return qs#.translated(*self.valid_languages)
 
 
-class EventDetail(AppConfigMixin, AppHookCheckMixin, EditModeMixin,
+class EventDetail(AppConfigMixin, AppHookCheckMixin, PreviewModeMixin,
                     TranslatableSlugMixin, TemplatePrefixMixin, DetailView):
     model = Event
     slug_field = 'slug'
@@ -115,37 +115,37 @@ class EventDetail(AppConfigMixin, AppHookCheckMixin, EditModeMixin,
     pk_url_kwarg = 'pk'
 
     def get(self, request, *args, **kwargs):
-        if 'speaker_slug' in kwargs:
-            speaker_slug = kwargs['speaker_slug']
-            speaker = Speaker.objects.published().filter(slug=speaker_slug, vcard_enabled=True)
-            if speaker.count() != 1:
-                raise Http404
-            filename = "%s.vcf" % str(speaker_slug)
-            vcard = speaker[0].get_vcard(request)
-            try:
-                vcard = vcard.decode('utf-8').encode('ISO-8859-1')
-            except UnicodeError:
-                pass
-            response = HttpResponse(vcard, content_type="text/x-vCard")
-            response['Content-Disposition'] = 'attachment; filename="{0}"'.format(
-                filename)
-            return response
-        """
-        This handles non-permalinked URLs according to preferences as set in
-        EventsConfig.
-        """
+        # if 'speaker_slug' in kwargs:
+            # speaker_slug = kwargs['speaker_slug']
+            # speaker = Speaker.objects.published().filter(slug=speaker_slug, vcard_enabled=True)
+            # if speaker.count() != 1:
+                # raise Http404
+            # filename = "%s.vcf" % str(speaker_slug)
+            # vcard = speaker[0].get_vcard(request)
+            # try:
+                # vcard = vcard.decode('utf-8').encode('ISO-8859-1')
+            # except UnicodeError:
+                # pass
+            # response = HttpResponse(vcard, content_type="text/x-vCard")
+            # response['Content-Disposition'] = 'attachment; filename="{0}"'.format(
+                # filename)
+            # return response
+        # """
+        # This handles non-permalinked URLs according to preferences as set in
+        # EventsConfig.
+        # """
         if not hasattr(self, 'object'):
             self.object = self.get_object()
-        set_language_changer(request, self.object.get_public_url)
+        # set_language_changer(request, self.object.get_public_url)
         if self.object.redirect_url:
             return HttpResponseRedirect(self.object.redirect_url)
 
-        url = self.object.get_absolute_url()
-        if (self.config.non_permalink_handling == 200 or request.path == url):
-            # Continue as normal
-            #return super(EventDetail, self).get(request, *args, **kwargs)
-            context = self.get_context_data(object=self.object)
-            return self.render_to_response(context)
+        # url = self.object.get_absolute_url()
+        # if (self.config.non_permalink_handling == 200 or request.path == url):
+        # Continue as normal
+        #return super(EventDetail, self).get(request, *args, **kwargs)
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
 
         # Check to see if the URL path matches the correct absolute_url of
         # the found object

@@ -21,9 +21,10 @@ from menus.utils import DefaultLanguageChanger
 
 from aldryn_apphooks_config.utils import get_app_instance
 from aldryn_translation_tools.utils import (
-    get_object_from_request,
+#    get_object_from_request,
     get_admin_url,
 )
+from parler.models import TranslatableModel
 
 from .models import Event
 from .cms_appconfig import EventsConfig
@@ -32,6 +33,39 @@ from cms.cms_toolbars import (
     ADMIN_MENU_IDENTIFIER,
     LANGUAGE_MENU_IDENTIFIER,
 )
+
+def get_object_from_request(model, request,
+                            pk_url_kwarg='pk',
+                            slug_url_kwarg='slug',
+                            slug_field='slug'):
+    """
+    Given a model and the request, try to extract and return an object
+    from an available 'pk' or 'slug', or return None.
+
+    Note that no checking is done that the obj's kwargs really are for objects
+    matching the provided model (how would it?) so use only where appropriate.
+    """
+    language = get_language_from_request(request, check_path=True)
+    kwargs = request.resolver_match.kwargs
+    mgr = model.all_objects
+    if pk_url_kwarg in kwargs:
+        return mgr.filter(pk=kwargs[pk_url_kwarg]).first()
+    elif slug_url_kwarg in kwargs:
+        # If the model is translatable, and the given slug is a translated
+        # field, then find it the Parler way.
+        filter_kwargs = {slug_field: kwargs[slug_url_kwarg]}
+        try:
+            translated_fields = model._parler_meta.get_translated_fields()
+        except AttributeError:
+            translated_fields = []
+        if issubclass(model, TranslatableModel) and slug_url_kwarg in translated_fields:
+            return mgr.active_translations(language, **filter_kwargs).first()
+        else:
+            # OK, do it the normal way.
+            return mgr.filter(**filter_kwargs).first()
+    else:
+        return None
+
 
 ADD_OBJ_LANGUAGE_BREAK = "Add object language Break"
 

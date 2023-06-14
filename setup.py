@@ -11,7 +11,7 @@ setup(
     author_email='hello@compoundpartners.co.uk',
     packages=find_packages(),
     platforms=['OS Independent'],
-    install_requires=['django-filter==2.2.0', 'django-crispy-forms==1.8.1',],
+    install_requires=['django-filter', 'django-crispy-forms==1.8.1',],
     include_package_data=True,
     zip_safe=False,
 )

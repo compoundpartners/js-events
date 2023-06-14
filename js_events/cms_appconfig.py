@@ -15,7 +15,6 @@ except ImportError:
     from django.urls import reverse
 from django.contrib.postgres.fields import JSONField
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import override, ugettext_lazy as _
 from cms.utils.i18n import get_current_language
 from parler.models import TranslatableModel, TranslatedFields
@@ -41,7 +40,6 @@ TEMPLATE_PREFIX_CHOICES = getattr(
     settings, 'EVENTS_TEMPLATE_PREFIXES', [])
 
 
-@python_2_unicode_compatible
 class EventsConfig(TranslatableModel, AppHookConfig):
     """Adds some translatable, per-app-instance fields."""
     translations = TranslatedFields(
@@ -111,6 +109,10 @@ class EventsConfig(TranslatableModel, AppHookConfig):
         default=True,
         help_text=_('Include articles in listing pages and admin selects?'),
     )
+    dates_required = models.BooleanField(
+        _('Dates are required'),
+        default=True,
+    )
     custom_fields_settings = JSONField(blank=True, null=True)
     custom_fields = JSONField(blank=True, null=True)
 
@@ -136,9 +138,6 @@ class EventsConfig(TranslatableModel, AppHookConfig):
 
 
 class EventsConfigForm(AppDataForm):
-    default_published = forms.BooleanField(
-        label=_(u'Post published by default'), required=False,
-        initial=getattr(settings, 'EVENTS_DEFAULT_PUBLISHED', False))
-
+    pass
 
 setup_config(EventsConfigForm, EventsConfig)

@@ -25,7 +25,6 @@ from django.contrib.postgres.fields import JSONField
 from django.db import connection, models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
@@ -39,7 +38,11 @@ from aldryn_newsblog.utils import get_plugin_index_data, get_request, strip_tags
 from aldryn_people.vcard import Vcard
 from .cms_appconfig import EventsConfig
 from .managers import RelatedManager, SpeakerManager, AllManager, SearchManager
-from .constants import get_template_title, RELATED_SPEAKERS_LAYOUTS, TRANSLATE_IS_PUBLISHED
+from .constants import (
+    get_template_title,
+    RELATED_SPEAKERS_LAYOUTS,
+    TRANSLATE_IS_PUBLISHED,
+)
 
 try:
     from django.utils.encoding import force_unicode
@@ -55,13 +58,12 @@ except ImportError:
     from urllib import parse as urlparse
 
 try:
-    from custom.js_events.models import CustomServiceMixin
+    from custom.js_events.models import CustomEventMixin
 except:
     class CustomEventMixin(object):
         pass
 
 
-@python_2_unicode_compatible
 class Channel(TranslatedAutoSlugifyMixin,
               TranslationHelperMixin,
               TranslatableModel):
@@ -96,7 +98,6 @@ class Channel(TranslatedAutoSlugifyMixin,
         return self.safe_translation_getter('name', any_language=True)
 
 
-@python_2_unicode_compatible
 class Event(CustomEventMixin,
             TranslatedAutoSlugifyMixin,
             TranslationHelperMixin,
@@ -156,6 +157,7 @@ class Event(CustomEventMixin,
             default=False, db_index=True),
         is_featured_trans = models.BooleanField(_('is featured'),
             default=False, db_index=True),
+        custom_fields_trans = JSONField(blank=True, null=True),
     )
 
     price=models.CharField(
@@ -168,7 +170,7 @@ class Event(CustomEventMixin,
         verbose_name=_('CPD Points'),
         blank=True,
         default='')
-    event_start = models.DateTimeField(_('Event start'), default=now)
+    event_start = models.DateTimeField(_('Event start'), null=True, blank=True)
     event_end = models.DateTimeField(_('Event end'), null=True, blank=True)
     latitude = models.DecimalField(max_digits=8, decimal_places=5,
         verbose_name=_('Event latitude'), blank=True, null=True)
@@ -186,6 +188,8 @@ class Event(CustomEventMixin,
                                related_name='events_event_registration_content')
     sidebar = PlaceholderField('Event Sidebar',
                                related_name='events_event_sidebar')
+    event_banner = PlaceholderField('Event banner',
+                               related_name='events_event_banner')
     related_articles_placeholder = PlaceholderField('Related Articles',
         related_name='events_event_related_articles_placeholder')
     registration_link = models.CharField(max_length=255,
@@ -247,6 +251,13 @@ class Event(CustomEventMixin,
         help_text='This image will only be shown on social channels. Minimum size: 1200x630px',
         related_name='+'
     )
+    related_image = FilerImageField(
+        verbose_name=_('Related Image'),
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+'
+    )
 
     show_on_sitemap = models.BooleanField(_('Show on sitemap'), null=False, default=True)
     show_on_xml_sitemap = models.BooleanField(_('Show on xml sitemap'), null=False, default=True)
@@ -279,7 +290,7 @@ class Event(CustomEventMixin,
     search_objects = SearchManager()
 
     class Meta:
-        ordering = ['-event_start']
+        ordering = ['-event_start', 'id']
 
     def get_class(self):
         '''Return class name'''
@@ -325,23 +336,29 @@ class Event(CustomEventMixin,
 
     @property
     def upcoming(self):
-        return self.event_start > now()
+        if self.event_start:
+            return self.event_start > now()
+        return True
 
     @property
     def past(self):
-        return self.event_start > now()
+        if self.event_start:
+            return self.event_start > now()
+        return False
 
     @property
     def show_registration_content(self):
-        return (self.registration_until or self.event_start) > now()
+        return (self.registration_until or self.event_start or now()) >= now()
 
     @property
     def start_date(self):
-        return self.event_start.date()
+        if self.event_start:
+            return self.event_start.date()
 
     @property
     def start_time(self):
-        return self.event_start.time()
+        if self.event_start:
+            return self.event_start.time()
 
     @property
     def end_date(self):
@@ -451,6 +468,7 @@ class Event(CustomEventMixin,
             self.content,
             self.registration_content,
             self.sidebar,
+            self.related_articles_placeholder,
         ]
 
     def _get_related_qs(self, queryset):
@@ -478,7 +496,6 @@ class Event(CustomEventMixin,
     cached_related_past_events = cached_property(related_past_events, name='cached_related_past_events')
 
 
-@python_2_unicode_compatible
 class Speaker(models.Model):
     first_name = models.CharField(
         _('first name'), max_length=255, blank=False,
@@ -610,7 +627,6 @@ class AdjustableCacheModelMixin(models.Model):
         abstract = True
 
 
-@python_2_unicode_compatible
 class EventRelatedPlugin(PluginEditModeMixin, AdjustableCacheModelMixin,
                             CMSPlugin):
     # NOTE: This one does NOT subclass NewsBlogCMSPlugin. This is because this
@@ -649,7 +665,6 @@ class EventRelatedPlugin(PluginEditModeMixin, AdjustableCacheModelMixin,
         return ugettext('Related events')
 
 
-@python_2_unicode_compatible
 class RelatedSpeakersPlugin(CMSPlugin):
 
     # NOTE: This one does NOT subclass NewsBlogCMSPlugin. This is because this
@@ -683,9 +698,12 @@ def update_search_data(sender, instance, **kwargs):
     if Event.update_search_on_save and is_cms_plugin:
         placeholder = (getattr(instance, '_placeholder_cache', None) or
                        instance.placeholder)
-        if hasattr(placeholder, '_attached_model_cache'):
-            if placeholder._attached_model_cache == Event and placeholder.slot == 'content':
-                event = placeholder._attached_model_cache.objects.language(
-                    instance.language).get(content=placeholder.pk)
-                event.search_data = event.get_search_data(instance.language)
-                event.save()
+        if hasattr(placeholder, '_attached_model_cache') and hasattr(placeholder, '_attached_field_cache'):
+            field = placeholder._attached_field_cache
+            model = placeholder._attached_model_cache
+            if field and model == Event:
+                placeholder.clear_cache(instance.language)
+                filters = {}
+                filters[field.name] = placeholder.pk
+                obj = model.objects.language(instance.language).get(**filters)
+                obj.save()
