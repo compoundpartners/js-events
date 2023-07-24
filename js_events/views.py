@@ -18,6 +18,10 @@ from django.shortcuts import get_object_or_404
 from django.utils import translation
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
+from django.utils.cache import patch_cache_control
+from django.utils.timezone import now
+from cms.cache.page import set_page_cache, get_page_cache
+from cms.utils.compat import DJANGO_2_2, DJANGO_3_0
 
 from menus.utils import set_language_changer
 from parler.views import TranslatableSlugMixin, ViewUrlMixin
@@ -32,7 +36,52 @@ from aldryn_newsblog.utils import add_prefix_to_path
 from .cms_appconfig import EventsConfig
 from .models import Event, Speaker
 from .filters import EventFilters
-from .constants import DEFAULT_FILTERS, GET_NEXT_EVENT, RELATED_EVENTS_COUNT
+from .constants import (
+    DEFAULT_FILTERS, 
+    GET_NEXT_EVENT, 
+    RELATED_EVENTS_COUNT,
+    USE_CACHE,
+)
+
+
+class CachedMixin():
+    def use_cache(self, request):
+        is_authenticated = request.user.is_authenticated
+        model_name = str(self.model.__name__ if self.model else self.queryset.model.__name__)
+        return request.method.lower() == 'get' and model_name in USE_CACHE and USE_CACHE[model_name] and (
+            not hasattr(request, 'toolbar') or (
+                not request.toolbar.edit_mode_active and not request.toolbar.show_toolbar and not is_authenticated
+            )
+        )
+
+    def dispatch(self, request, *args, **kwargs):
+        # Try to dispatch to the right method; if a method doesn't exist,
+        # defer to the error handler. Also defer to the error handler if the
+        # request method isn't on the approved list.
+        response_timestamp = now()
+        if self.use_cache(request):
+            cache_content = get_page_cache(request)
+            if cache_content is not None:
+                content, headers, expires_datetime = cache_content
+                response = HttpResponse(content)
+                response.xframe_options_exempt = True
+                if DJANGO_2_2 or DJANGO_3_0:
+                    response._headers = headers
+                else:
+                    #  for django3.2 and above. response.headers replaces response._headers in earlier versions of django
+                    response.headers = headers
+                # Recalculate the max-age header for this cached response
+                max_age = int(
+                    (expires_datetime - response_timestamp).total_seconds() + 0.5)
+                patch_cache_control(response, max_age=max_age)
+                return response
+        return super().dispatch(request, *args, **kwargs)
+
+    def render_to_response(self, context, **response_kwargs):
+        response = super().render_to_response(context, **response_kwargs)
+        if self.use_cache(self.request):
+            response.add_post_render_callback(set_page_cache)
+        return response
 
 
 class TemplatePrefixMixin(object):
@@ -104,7 +153,7 @@ class AppHookCheckMixin(object):
         return qs#.translated(*self.valid_languages)
 
 
-class EventDetail(AppConfigMixin, AppHookCheckMixin, PreviewModeMixin,
+class EventDetail(CachedMixin, AppConfigMixin, AppHookCheckMixin, PreviewModeMixin,
                     TranslatableSlugMixin, TemplatePrefixMixin, DetailView):
     model = Event
     slug_field = 'slug'

@@ -141,3 +141,9 @@ try:
     from js_companies.models import Company
 except:
     IS_THERE_COMPANIES = False
+
+USE_CACHE = getattr(
+    settings,
+    'JUMPSUITE_USE_CACHE',
+    {}
+)
