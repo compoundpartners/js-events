@@ -43,6 +43,18 @@ from .constants import (
     USE_CACHE,
 )
 
+class NoneMixin(object):
+    pass
+
+try:
+    from custom.js_events.views import CustomListMixin
+except:
+    CustomListMixin = NoneMixin
+try:
+    from custom.js_events.views import CustomDetailMixin
+except:
+    CustomDetailMixin = NoneMixin
+
 
 class CachedMixin():
     def use_cache(self, request):
@@ -153,7 +165,7 @@ class AppHookCheckMixin(object):
         return qs#.translated(*self.valid_languages)
 
 
-class EventDetail(CachedMixin, AppConfigMixin, AppHookCheckMixin, PreviewModeMixin,
+class EventDetail(CustomDetailMixin, CachedMixin, AppConfigMixin, AppHookCheckMixin, PreviewModeMixin,
                     TranslatableSlugMixin, TemplatePrefixMixin, DetailView):
     model = Event
     slug_field = 'slug'
@@ -354,7 +366,7 @@ class EventListBase(AppConfigMixin, AppHookCheckMixin, TemplatePrefixMixin,
         return context
 
 
-class EventList(EventListBase):
+class EventList(CustomListMixin, EventListBase):
     """A complete list of events."""
     show_header = True
 
